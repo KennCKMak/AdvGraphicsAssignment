@@ -89,6 +89,8 @@ public:
 	///</summary>
     MeshData CreateSphere(float radius, uint32 sliceCount, uint32 stackCount);
 
+	MeshData CreateTorus(float radius0, float radius1, uint32 sliceCount, uint32 stackCount);
+
 	///<summary>
 	/// Creates a geosphere centered at the origin with the given radius.  The
 	/// depth controls the level of tessellation.
@@ -102,6 +104,9 @@ public:
 	///</summary>
     MeshData CreateCylinder(float bottomRadius, float topRadius, float height, uint32 sliceCount, uint32 stackCount);
 
+
+
+	MeshData CreateCone(float bottomRadius, float height, uint32 sliceCount, uint32 stackCount);
 	///<summary>
 	/// Creates an mxn grid in the xz-plane with m rows and n columns, centered
 	/// at the origin with the specified width and depth.

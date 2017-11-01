@@ -198,7 +198,6 @@ GeometryGenerator::MeshData GeometryGenerator::CreateDiamond(float bottom, float
 	return meshData;
 }
 
-
 GeometryGenerator::MeshData GeometryGenerator::CreateSphere(float radius, uint32 sliceCount, uint32 stackCount)
 {
     MeshData meshData;
@@ -403,6 +402,108 @@ GeometryGenerator::Vertex GeometryGenerator::MidPoint(const Vertex& v0, const Ve
     return v;
 }
 
+GeometryGenerator::MeshData GeometryGenerator::CreateTorus(float radius0, float radius1, uint32 sliceCount, uint32 stackCount) {
+	MeshData meshData;
+	float thetaStep = 2.0f*XM_PI / sliceCount; 
+	float phiStep = 2.0f*XM_PI / sliceCount;
+	//
+	// Compute the vertices stating at the top pole and moving down the stacks.
+	//
+
+	// Poles: note that there will be texture coordinate distortion as there is
+	// not a unique point on the texture map to assign to the pole when mapping
+	// a rectangular texture onto a sphere.
+
+	//Generating 
+
+	for (uint32 i = 0; i < stackCount; i++) {
+		float theta = i*thetaStep;
+		// Compute vertices for each 'ring'
+		for (uint32 j = 0; j < sliceCount; j++)
+		{
+			float phi = j*thetaStep;
+
+			Vertex v;
+
+			// spherical to cartesian
+			v.Position.x = cosf(theta)*(radius0 + radius1*cos(phi));
+			v.Position.y = radius1*sin(phi);
+			v.Position.z = sinf(theta)*(radius0 + radius1*cos(phi));	
+
+			// Partial derivative of P with respect to theta
+			v.TangentU.x = -cosf(theta)*(radius0 + radius1*cos(phi));
+			v.TangentU.y = -radius1*sin(phi);
+			v.TangentU.z = -sinf(theta)*(radius0 + radius1*cos(phi));
+
+			XMVECTOR T = XMLoadFloat3(&v.TangentU);
+			XMStoreFloat3(&v.TangentU, XMVector3Normalize(T));
+
+			XMVECTOR p = XMLoadFloat3(&v.Position);
+			XMStoreFloat3(&v.Normal, XMVector3Normalize(p));
+
+			v.TexC.x = theta / XM_2PI;
+			v.TexC.y = phi / XM_PI;
+
+			meshData.Vertices.push_back(v);
+		}
+	}
+
+	//ring indices setup
+	//		last	first	secon
+	//		381		1		21
+	//		380		0		20
+	//		399		19		39
+	//
+	// Compute indices for top stack.  The top stack was written first to the vertex buffer
+	// and connects the top pole to the first ring.
+	for (uint32 i = 0; i < stackCount - 1; i++) { //how many 'rings'
+		for (uint32 j = 0; j < sliceCount; j++) { //connecting rings with next ring
+			if (j == 19) {
+				meshData.Indices32.push_back(i*stackCount + j); //at 19
+				meshData.Indices32.push_back(i*stackCount); //connecting to '0'
+				meshData.Indices32.push_back((i + 1)*stackCount + j); //connecting to next ring's '19'
+
+				meshData.Indices32.push_back((i + 1)*stackCount + j); 
+				meshData.Indices32.push_back(i*stackCount); 
+				meshData.Indices32.push_back((i + 1)*stackCount); 
+			} else {
+				meshData.Indices32.push_back(i*stackCount + j); //at '0'
+				meshData.Indices32.push_back(i*stackCount + j + 1); //at '1'
+				meshData.Indices32.push_back((i + 1)*stackCount + j); //at next ring's 0
+
+				meshData.Indices32.push_back((i + 1)*stackCount + j);
+				meshData.Indices32.push_back(i*stackCount + j + 1); 
+				meshData.Indices32.push_back((i + 1)*stackCount + j + 1); 
+			}
+		}
+	}
+	//for last ring to connect to first
+	for (uint32 j = 0; j < sliceCount; j++) {
+		if (j == 19) {
+			meshData.Indices32.push_back((stackCount - 1)*stackCount + j); //at 19
+			meshData.Indices32.push_back((stackCount - 1)*stackCount); //connecting to '0'
+			meshData.Indices32.push_back(j); //connecting to first ring's '19'
+
+			meshData.Indices32.push_back(j);
+			meshData.Indices32.push_back((stackCount - 1)*stackCount);
+			meshData.Indices32.push_back(0);
+		}
+		else {
+			meshData.Indices32.push_back((stackCount - 1)*stackCount + j); //at '0'
+			meshData.Indices32.push_back((stackCount - 1)*stackCount + j + 1); //at '1'
+			meshData.Indices32.push_back(j); //at next ring's 0
+
+			meshData.Indices32.push_back(j);
+			meshData.Indices32.push_back((stackCount - 1)*stackCount + j + 1);
+			meshData.Indices32.push_back(j + 1);
+		}
+	}
+
+
+
+	return meshData;
+}
+
 GeometryGenerator::MeshData GeometryGenerator::CreateGeosphere(float radius, uint32 numSubdivisions)
 {
     MeshData meshData;
@@ -571,6 +672,15 @@ GeometryGenerator::MeshData GeometryGenerator::CreateCylinder(float bottomRadius
 
     return meshData;
 }
+
+
+GeometryGenerator::MeshData GeometryGenerator::CreateCone(float bottomRadius, float height, uint32 sliceCount, uint32 stackCount)
+{
+	MeshData meshData = CreateCylinder(bottomRadius, 0, height, sliceCount, stackCount);
+	return meshData;
+}
+
+
 
 void GeometryGenerator::BuildCylinderTopCap(float bottomRadius, float topRadius, float height,
 											uint32 sliceCount, uint32 stackCount, MeshData& meshData)
