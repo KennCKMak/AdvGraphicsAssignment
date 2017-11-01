@@ -100,6 +100,62 @@ GeometryGenerator::MeshData GeometryGenerator::CreateBox(float width, float heig
     return meshData;
 }
 
+
+GeometryGenerator::MeshData GeometryGenerator::CreateTriangularPrism(float base, float height, float width, float depth, uint32 numSubdivisions)
+{
+	MeshData meshData;
+
+	//
+	// Create the vertices.
+	//
+
+	Vertex v[6];
+
+
+	// Fill in the front face vertex data.
+	v[0] = Vertex(-base/2, 0, 0, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+	v[1] = Vertex(base/2, 0, 0, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	v[2] = Vertex(0, height, 0, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+
+	v[3] = Vertex(-base/2, 0, width, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+	v[4] = Vertex(base/2, 0, width, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+	v[5] = Vertex(0, height, width, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+
+	meshData.Vertices.assign(&v[0], &v[6]);
+
+	//
+	// Create the indices.
+	//
+
+	uint32 i[24];
+
+	// Fill in the triangles
+	i[0] = 2; i[1] = 1; i[2] = 0;
+	i[3] = 3; i[4] = 4; i[5] = 5;
+
+	// bottom
+	i[6] = 4; i[7] = 0; i[8] = 1;
+	i[9] = 3; i[10] = 0; i[11] = 4;
+
+	// topright
+	i[12] = 1; i[13] = 2; i[14] = 4;
+	i[15] = 4; i[16] = 2; i[17] = 5;
+
+	//topleft
+	i[18] = 3; i[19] = 2; i[20] = 0;
+	i[21] = 5; i[22] = 2; i[23] = 3;
+
+	meshData.Indices32.assign(&i[0], &i[24]);
+
+	// Put a cap on the number of subdivisions.
+	numSubdivisions = std::min<uint32>(numSubdivisions, 6u);
+
+	for (uint32 i = 0; i < numSubdivisions; ++i)
+		Subdivide(meshData);
+
+	return meshData;
+}
+
 GeometryGenerator::MeshData GeometryGenerator::CreateDiamond(float bottom, float height, float radius, uint32 numSubdivisions)
 {
 	MeshData meshData;

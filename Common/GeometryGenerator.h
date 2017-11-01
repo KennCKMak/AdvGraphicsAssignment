@@ -81,6 +81,9 @@ public:
     MeshData CreateBox(float width, float height, float depth, uint32 numSubdivisions);
 
 
+	MeshData CreateTriangularPrism(float base, float height, float width, float depth, uint32 numSubdivisions);
+
+
 
 	MeshData CreateDiamond(float bottom, float height, float radius, uint32 numSubdivisions);
 	///<summary>
