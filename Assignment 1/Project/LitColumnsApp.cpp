@@ -746,25 +746,25 @@ void LitColumnsApp::BuildMaterials()
 	stone0->Roughness = 0.3f;
  
 	auto tile0 = std::make_unique<Material>();
-	tile0->Name = "tile0";
+	tile0->Name = "greenMat";
 	tile0->MatCBIndex = 2;
 	tile0->DiffuseSrvHeapIndex = 2;
 	tile0->DiffuseAlbedo = XMFLOAT4(Colors::ForestGreen);
 	tile0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
 	tile0->Roughness = 0.2f;
 
-	auto redMat = std::make_unique<Material>();
-	redMat->Name = "redMat";
-	redMat->MatCBIndex = 4;
-	redMat->DiffuseSrvHeapIndex = 4;
-	redMat->DiffuseAlbedo = XMFLOAT4(Colors::Red);
-	redMat->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05);
-	redMat->Roughness = 0.3f;
+	auto brownMat = std::make_unique<Material>();
+	brownMat->Name = "brownMat";
+	brownMat->MatCBIndex = 4;
+	brownMat->DiffuseSrvHeapIndex = 4;
+	brownMat->DiffuseAlbedo = XMFLOAT4(Colors::SaddleBrown);
+	brownMat->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05);
+	brownMat->Roughness = 0.3f;
 	
 	mMaterials["bricks0"] = std::move(bricks0);
 	mMaterials["stone0"] = std::move(stone0);
-	mMaterials["tile0"] = std::move(tile0);
-	mMaterials["redMat"] = std::move(redMat);
+	mMaterials["greenMat"] = std::move(tile0);
+	mMaterials["brownMat"] = std::move(brownMat);
 }
 
 void LitColumnsApp::BuildRenderItems()
@@ -774,7 +774,7 @@ void LitColumnsApp::BuildRenderItems()
 	XMStoreFloat4x4(&gridRitem->World, XMMatrixScaling(400.0f, 1.0, 400.0f));
 	XMStoreFloat4x4(&gridRitem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	gridRitem->ObjCBIndex = objectIndex++;
-	gridRitem->Mat = mMaterials["tile0"].get();
+	gridRitem->Mat = mMaterials["greenMat"].get();
 	gridRitem->Geo = mGeometries["shapeGeo"].get();
 	gridRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	gridRitem->IndexCount = gridRitem->Geo->DrawArgs["grid"].IndexCount;
@@ -820,6 +820,37 @@ void LitColumnsApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const st
 }
 
 void LitColumnsApp::BuildWalls() {
+	//gates
+	auto gateLeft = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&gateLeft->World, XMMatrixScaling(1.0f, 14.0f, 18.0f) 
+		* XMMatrixRotationY(XMConvertToRadians(90.0f))
+		* XMMatrixTranslation(77.0f, 7.0f, -15.65f));
+	XMStoreFloat4x4(&gateLeft->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	gateLeft->ObjCBIndex = objectIndex++;
+	gateLeft->Mat = mMaterials["brownMat"].get();
+	gateLeft->Geo = mGeometries["shapeGeo"].get();
+	gateLeft->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	gateLeft->IndexCount = gateLeft->Geo->DrawArgs["box"].IndexCount;
+	gateLeft->StartIndexLocation = gateLeft->Geo->DrawArgs["box"].StartIndexLocation;
+	gateLeft->BaseVertexLocation = gateLeft->Geo->DrawArgs["box"].BaseVertexLocation;
+	mAllRitems.push_back(std::move(gateLeft));
+
+	auto gateRight = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&gateRight->World, XMMatrixScaling(1.0f, 14.0f, 18.0f)
+		* XMMatrixRotationY(XMConvertToRadians(90.0f))
+		* XMMatrixTranslation(77.0f, 7.0f, 15.65f));
+	XMStoreFloat4x4(&gateRight->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	gateRight->ObjCBIndex = objectIndex++;
+	gateRight->Mat = mMaterials["brownMat"].get();
+	gateRight->Geo = mGeometries["shapeGeo"].get();
+	gateRight->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	gateRight->IndexCount = gateRight->Geo->DrawArgs["box"].IndexCount;
+	gateRight->StartIndexLocation = gateRight->Geo->DrawArgs["box"].StartIndexLocation;
+	gateRight->BaseVertexLocation = gateRight->Geo->DrawArgs["box"].BaseVertexLocation;
+	mAllRitems.push_back(std::move(gateRight));
+
+
+	//walls
 	auto wallLeft = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&wallLeft->World, XMMatrixScaling(100.0f, 16.0f, 18.0f) * XMMatrixTranslation(0.0f, 8.0f, -59.0f));
 	XMStoreFloat4x4(&wallLeft->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
@@ -922,7 +953,7 @@ void LitColumnsApp::BuildTowers() {
 		* XMMatrixTranslation(59.0f, 52.0f, -59.0f));
 	XMStoreFloat4x4(&coneFrontL->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	coneFrontL->ObjCBIndex = objectIndex++;
-	coneFrontL->Mat = mMaterials["tile0"].get();
+	coneFrontL->Mat = mMaterials["greenMat"].get();
 	coneFrontL->Geo = mGeometries["shapeGeo"].get();
 	coneFrontL->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	coneFrontL->IndexCount = coneFrontL->Geo->DrawArgs["cone"].IndexCount;
@@ -948,7 +979,7 @@ void LitColumnsApp::BuildTowers() {
 		* XMMatrixTranslation(59.0f, 52.0f, 59.0f));
 	XMStoreFloat4x4(&coneFrontR->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	coneFrontR->ObjCBIndex = objectIndex++;
-	coneFrontR->Mat = mMaterials["tile0"].get();
+	coneFrontR->Mat = mMaterials["greenMat"].get();
 	coneFrontR->Geo = mGeometries["shapeGeo"].get();
 	coneFrontR->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	coneFrontR->IndexCount = coneFrontR->Geo->DrawArgs["cone"].IndexCount;
@@ -974,7 +1005,7 @@ void LitColumnsApp::BuildTowers() {
 		* XMMatrixTranslation(-59.0f, 52.0f, 59.0f));
 	XMStoreFloat4x4(&coneBackR->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	coneBackR->ObjCBIndex = objectIndex++;
-	coneBackR->Mat = mMaterials["tile0"].get();
+	coneBackR->Mat = mMaterials["greenMat"].get();
 	coneBackR->Geo = mGeometries["shapeGeo"].get();
 	coneBackR->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	coneBackR->IndexCount = coneBackR->Geo->DrawArgs["cone"].IndexCount;
@@ -1000,7 +1031,7 @@ void LitColumnsApp::BuildTowers() {
 		* XMMatrixTranslation(-59.0f, 52.0f, -59.0f));
 	XMStoreFloat4x4(&coneBackL->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	coneBackL->ObjCBIndex = objectIndex++;
-	coneBackL->Mat = mMaterials["tile0"].get();
+	coneBackL->Mat = mMaterials["greenMat"].get();
 	coneBackL->Geo = mGeometries["shapeGeo"].get();
 	coneBackL->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	coneBackL->IndexCount = coneBackL->Geo->DrawArgs["cone"].IndexCount;
@@ -1069,7 +1100,7 @@ void LitColumnsApp::BuildRailAndSpikes(float posX, float posY, float posZ, int d
 				* XMMatrixTranslation(posX +i*10.0f*dirX, posY+ 3.0f, posZ +i*10.0f*dirZ));
 			XMStoreFloat4x4(&pyramid->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 			pyramid->ObjCBIndex = objectIndex++;
-			pyramid->Mat = mMaterials["tile0"].get();
+			pyramid->Mat = mMaterials["greenMat"].get();
 			pyramid->Geo = mGeometries["shapeGeo"].get();
 			pyramid->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			pyramid->IndexCount = pyramid->Geo->DrawArgs["pyramid"].IndexCount;
@@ -1096,7 +1127,7 @@ void LitColumnsApp::BuildRailAndSpikes(float posX, float posY, float posZ, int d
 				* XMMatrixTranslation(posX + i*10.0f*dirX, posY + 3.0f, posZ + i*10.0f*dirZ));
 			XMStoreFloat4x4(&pyramid->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 			pyramid->ObjCBIndex = objectIndex++;
-			pyramid->Mat = mMaterials["tile0"].get();
+			pyramid->Mat = mMaterials["greenMat"].get();
 			pyramid->Geo = mGeometries["shapeGeo"].get();
 			pyramid->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			pyramid->IndexCount = pyramid->Geo->DrawArgs["pyramid"].IndexCount;
@@ -1122,7 +1153,7 @@ void LitColumnsApp::BuildRailAndSpikes(float posX, float posY, float posZ, int d
 				* XMMatrixTranslation(posX - i*10.0f*dirX, posY + 3.0f, posZ - i*10.0f*dirZ));
 			XMStoreFloat4x4(&pyramid2->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 			pyramid2->ObjCBIndex = objectIndex++;
-			pyramid2->Mat = mMaterials["tile0"].get();
+			pyramid2->Mat = mMaterials["greenMat"].get();
 			pyramid2->Geo = mGeometries["shapeGeo"].get();
 			pyramid2->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			pyramid2->IndexCount = pyramid2->Geo->DrawArgs["pyramid"].IndexCount;
@@ -1137,7 +1168,7 @@ void LitColumnsApp::BuildInner() {
 
 	auto floor = std::make_unique<RenderItem>();
 	floor->World = MathHelper::Identity4x4();
-	XMStoreFloat4x4(&floor->World, XMMatrixScaling(100.0f, 1.0, 30.0f)
+	XMStoreFloat4x4(&floor->World, XMMatrixScaling(140.0f, 1.0, 30.0f)
 		* XMMatrixTranslation(0.0f, 0.1f, 0.0f));
 	XMStoreFloat4x4(&floor->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	floor->ObjCBIndex = objectIndex++;
@@ -1170,7 +1201,7 @@ void LitColumnsApp::BuildInner() {
 			* XMMatrixTranslation(-30.0f + 30.0f*i, 16.5f, -15.0f));
 		XMStoreFloat4x4(&sphere->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 		sphere->ObjCBIndex = objectIndex++;
-		sphere->Mat = mMaterials["tile0"].get();
+		sphere->Mat = mMaterials["greenMat"].get();
 		sphere->Geo = mGeometries["shapeGeo"].get();
 		sphere->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		sphere->IndexCount = sphere->Geo->DrawArgs["sphere"].IndexCount;
@@ -1197,7 +1228,7 @@ void LitColumnsApp::BuildInner() {
 			* XMMatrixTranslation(-30.0f + 30.0f*i, 16.5f, 15.0f));
 		XMStoreFloat4x4(&sphere->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 		sphere->ObjCBIndex = objectIndex++;
-		sphere->Mat = mMaterials["tile0"].get();
+		sphere->Mat = mMaterials["greenMat"].get();
 		sphere->Geo = mGeometries["shapeGeo"].get();
 		sphere->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		sphere->IndexCount = sphere->Geo->DrawArgs["sphere"].IndexCount;
@@ -1237,7 +1268,7 @@ void LitColumnsApp::BuildInner() {
 	XMStoreFloat4x4(&torus->World, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(-35.0f, 3.8f, 0.0f));
 	XMStoreFloat4x4(&torus->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	torus->ObjCBIndex = objectIndex++;
-	torus->Mat = mMaterials["tile0"].get();
+	torus->Mat = mMaterials["greenMat"].get();
 	torus->Geo = mGeometries["shapeGeo"].get();
 	torus->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	torus->IndexCount = torus->Geo->DrawArgs["torus"].IndexCount;
