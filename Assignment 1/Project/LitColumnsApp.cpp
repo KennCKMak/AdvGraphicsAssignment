@@ -920,7 +920,7 @@ void LitColumnsApp::BuildWalls() {
 	auto wallFrontM = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&wallFrontM->World, XMMatrixScaling(35.0f, 2.0f, 18.0f)
 		* XMMatrixRotationY(XMConvertToRadians(90))
-		* XMMatrixTranslation(59.0f, 15.0f, 0.28f));
+		* XMMatrixTranslation(59.0f, 15.0f, 0.0f));
 	XMStoreFloat4x4(&wallFrontM->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	wallFrontM->ObjCBIndex = objectIndex++;
 	wallFrontM->Mat = mMaterials["stone0"].get();

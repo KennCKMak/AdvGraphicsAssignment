@@ -111,11 +111,11 @@ GeometryGenerator::MeshData GeometryGenerator::CreateTriangularPrism(float base,
 	Vertex v[6];
 
 
-	// Fill in the front face vertex data.
+	// Fill in the front face vertex data. This is the 'forward' triangle face
 	v[0] = Vertex(-base/2, 0, 0, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 	v[1] = Vertex(base/2, 0, 0, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 	v[2] = Vertex(0, height, 0, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-
+	//This is the 'back' triangle face
 	v[3] = Vertex(-base/2, 0, width, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
 	v[4] = Vertex(base/2, 0, width, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
 	v[5] = Vertex(0, height, width, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
@@ -132,15 +132,15 @@ GeometryGenerator::MeshData GeometryGenerator::CreateTriangularPrism(float base,
 	i[0] = 2; i[1] = 1; i[2] = 0;
 	i[3] = 3; i[4] = 4; i[5] = 5;
 
-	// bottom
+	// bottom of prism
 	i[6] = 4; i[7] = 0; i[8] = 1;
 	i[9] = 3; i[10] = 0; i[11] = 4;
 
-	// topright
+	// topright of prism
 	i[12] = 1; i[13] = 2; i[14] = 4;
 	i[15] = 4; i[16] = 2; i[17] = 5;
 
-	//topleft
+	//topleft of prism
 	i[18] = 3; i[19] = 2; i[20] = 0;
 	i[21] = 5; i[22] = 2; i[23] = 3;
 
@@ -166,11 +166,12 @@ GeometryGenerator::MeshData GeometryGenerator::CreateWedge(float base, float hei
 	Vertex v[6];
 
 
-	// Fill in the front face vertex data.
+	// Fill in the front face vertex data. 
+	//Front triangle 'face'
 	v[0] = Vertex(0, 0, 0, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 	v[1] = Vertex(base, 0, 0, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 	v[2] = Vertex(0, height, 0, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-
+	//Back triangle 'face'
 	v[3] = Vertex(0, 0, width, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
 	v[4] = Vertex(base, 0, width, 0.0f, 0.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
 	v[5] = Vertex(0, height, width, 0.0f, 0.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
@@ -214,12 +215,13 @@ GeometryGenerator::MeshData GeometryGenerator::CreatePyramid(float base, float h
 	MeshData meshData;
 
 	Vertex v[5];
-	// Fill in the bottom face vertex data.
+	// Fill in the bottom face vertex data. This is the bottom square face
 	v[0] = Vertex(-base / 2, 0, -width / 2, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 	v[1] = Vertex(base/2, 0, -width/2, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
 	v[2] = Vertex(base/2, 0, width/2, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 	v[3] = Vertex(-base/2, 0, width/2, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 
+	//top vertex peak
 	v[4] = Vertex(0, height, 0, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
 	meshData.Vertices.assign(&v[0], &v[5]);
@@ -230,19 +232,19 @@ GeometryGenerator::MeshData GeometryGenerator::CreatePyramid(float base, float h
 
 	uint32 i[18];
 
-	//Forward
+	//Forward face
 	i[0] = 4; i[1] = 1; i[2] = 0;
 	
-	//Right
+	//Right face
 	i[3] = 4; i[4] = 2; i[5] = 1;
 
-	//Back
+	//Back face
 	i[6] = 4; i[7] = 3; i[8] = 2;
 	
-	//Left
+	//Left face
 	i[9] = 4; i[10] = 0; i[11] = 3;
 
-	//Bottom
+	//Bottom square face
 	i[12] = 0; i[13] = 1; i[14] = 2;
 	i[15] = 3; i[16] = 0; i[17] = 2;
 
@@ -273,9 +275,9 @@ GeometryGenerator::MeshData GeometryGenerator::CreateDiamond(float bottom, float
 	float r = radius*0.5f;
 
 	//height is dist from bot to first angles
-	//height/2 is first angle to top
+	//height/2 is from first angle to top
 	//radius = dist around first angles
-	//radius /2 is top angles
+	//radius/2 is top face radii
 
 
 	// Fill in the front face vertex data.
@@ -289,6 +291,8 @@ GeometryGenerator::MeshData GeometryGenerator::CreateDiamond(float bottom, float
 	v[7] = Vertex(-r*cos(22.5*3.145 / 180), b + h, r*sin(22.5*3.145 / 180), 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 	v[8] = Vertex(-r*cos(22.5*3.145 / 180), b + h, -r*sin(22.5*3.145 / 180), 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
 
+
+	//setting up the highest, flat vertices of diamond
 	float newH = h*1.4f;
 	float newR = r / 2;
 
@@ -337,6 +341,7 @@ GeometryGenerator::MeshData GeometryGenerator::CreateDiamond(float bottom, float
 	i[66] = 10;		i[67] = 1;		i[68] = 8;
 	i[69] = 1;		i[70] = 10;		i[71] = 11;
 
+	//top face octagon
 	i[72] = 9;		i[73] = 16;		i[74] = 15;
 	i[75] = 9;		i[76] = 15;		i[77] = 14;
 	i[78] = 9;		i[79] = 14;		i[80] = 13;
@@ -562,21 +567,20 @@ GeometryGenerator::Vertex GeometryGenerator::MidPoint(const Vertex& v0, const Ve
 
 GeometryGenerator::MeshData GeometryGenerator::CreateTorus(float radius0, float radius1, uint32 sliceCount, uint32 stackCount) {
 	MeshData meshData;
-	float thetaStep = 2.0f*XM_PI / sliceCount; 
-	float phiStep = 2.0f*XM_PI / sliceCount;
-	//
-	// Compute the vertices stating at the top pole and moving down the stacks.
-	//
+	//rad0 = center of torus to center of 'rings'
+	//rad1 = radius of each 'ring'/donut
+	//slice count = vertical slices, how many 'rings' to make up the torus
+	//stack count = horizontal slices, how smooth the 'rings' should be
 
-	// Poles: note that there will be texture coordinate distortion as there is
-	// not a unique point on the texture map to assign to the pole when mapping
-	// a rectangular texture onto a sphere.
+	float thetaStep = 2.0f*XM_PI / sliceCount; //360 degrees divided by how many 'slices'
+	float phiStep = 2.0f*XM_PI / sliceCount; //same, but with stacks
 
-	//Generating 
 
+	//generating i amount of rings
 	for (uint32 i = 0; i < stackCount; i++) {
 		float theta = i*thetaStep;
-		// Compute vertices for each 'ring'
+
+		// Compute j vertices for each 'ring'
 		for (uint32 j = 0; j < sliceCount; j++)
 		{
 			float phi = j*thetaStep;
@@ -606,25 +610,23 @@ GeometryGenerator::MeshData GeometryGenerator::CreateTorus(float radius0, float 
 		}
 	}
 
-	//ring indices setup
-	//		last	first	secon
-	//		381		1		21
-	//		380		0		20
-	//		399		19		39
+	//ring indices setup, assuming stack count of '20'
+	//		last	first	secon	thir
+	//		381		1		21		41
+	//		380		0		20		40
+	//		399		19		39		59
 	//
-	// Compute indices for top stack.  The top stack was written first to the vertex buffer
-	// and connects the top pole to the first ring.
-	for (uint32 i = 0; i < stackCount - 1; i++) { //how many 'rings'
+	for (uint32 i = 0; i < stackCount - 1; i++) { //how many 'rings'? Excluding the ring connection between last and first
 		for (uint32 j = 0; j < sliceCount; j++) { //connecting rings with next ring
 			if (j == 19) {
 				meshData.Indices32.push_back(i*stackCount + j); //at 19
 				meshData.Indices32.push_back(i*stackCount); //connecting to '0'
-				meshData.Indices32.push_back((i + 1)*stackCount + j); //connecting to next ring's '19'
+				meshData.Indices32.push_back((i + 1)*stackCount + j); //connecting to next ring's '19'/
 
 				meshData.Indices32.push_back((i + 1)*stackCount + j); 
 				meshData.Indices32.push_back(i*stackCount); 
 				meshData.Indices32.push_back((i + 1)*stackCount); 
-			} else {
+			} else {// not at vertex 19
 				meshData.Indices32.push_back(i*stackCount + j); //at '0'
 				meshData.Indices32.push_back(i*stackCount + j + 1); //at '1'
 				meshData.Indices32.push_back((i + 1)*stackCount + j); //at next ring's 0
@@ -834,6 +836,8 @@ GeometryGenerator::MeshData GeometryGenerator::CreateCylinder(float bottomRadius
 
 GeometryGenerator::MeshData GeometryGenerator::CreateCone(float bottomRadius, float height, uint32 sliceCount, uint32 stackCount)
 {
+	//reuses cylinder function and forces the top radius to be 0 so it becomes a cone
+
 	MeshData meshData = CreateCylinder(bottomRadius, 0, height, sliceCount, stackCount);
 	return meshData;
 }
