@@ -282,28 +282,28 @@ GeometryGenerator::MeshData GeometryGenerator::CreateDiamond(float bottom, float
 
 	// Fill in the front face vertex data.
 	v[0] = Vertex(0, b, 0, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-	v[1] = Vertex(-r*sin(22.5*3.145 / 180), b + h, -r*cos(22.5*3.145 / 180), 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-	v[2] = Vertex(r*sin(22.5*3.145 / 180), b + h, -r*cos(22.5*3.145 / 180), 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-	v[3] = Vertex(r*cos(22.5*3.145 / 180), b + h, -r*sin(22.5*3.145 / 180), 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-	v[4] = Vertex(r*cos(22.5*3.145 / 180), b + h, r*sin(22.5*3.145 / 180), 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-	v[5] = Vertex(r*sin(22.5*3.145 / 180), b + h, r*cos(22.5*3.145 / 180), 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-	v[6] = Vertex(-r*sin(22.5*3.145 / 180), b + h, r*cos(22.5*3.145 / 180), 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-	v[7] = Vertex(-r*cos(22.5*3.145 / 180), b + h, r*sin(22.5*3.145 / 180), 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-	v[8] = Vertex(-r*cos(22.5*3.145 / 180), b + h, -r*sin(22.5*3.145 / 180), 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+	v[1] = Vertex(-r*sin(22.5f*3.145f / 180.0f), b + h, -r*cos(22.5f*3.145f / 180.0f), 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+	v[2] = Vertex(r*sin(22.5f*3.145f / 180.0f), b + h, -r*cos(22.5f*3.145f / 180.0f), 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+	v[3] = Vertex(r*cos(22.5f*3.145f / 180.0f), b + h, -r*sin(22.5f*3.145f / 180.0f), 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+	v[4] = Vertex(r*cos(22.5f*3.145f / 180.0f), b + h, r*sin(22.5f*3.145f / 180.0f), 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+	v[5] = Vertex(r*sin(22.5f*3.145f / 180.0f), b + h, r*cos(22.5f*3.145f / 180.0f), 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+	v[6] = Vertex(-r*sin(22.5f*3.145f / 180.0f), b + h, r*cos(22.5f*3.145f / 180.0f), 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+	v[7] = Vertex(-r*cos(22.5f*3.145f / 180.0f), b + h, r*sin(22.5f*3.145f / 180.0f), 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+	v[8] = Vertex(-r*cos(22.5f*3.145f / 180.0f), b + h, -r*sin(22.5f*3.145f / 180.0f), 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
 
 
 	//setting up the highest, flat vertices of diamond
 	float newH = h*1.4f;
 	float newR = r / 2;
 
-	v[9] = Vertex(-newR*cos(22.5*3.145 / 180), b + newH, newR*sin(22.5*3.145 / 180), 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-	v[10] = Vertex(-newR*cos(22.5*3.145 / 180), b + newH, -newR*sin(22.5*3.145 / 180), 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-	v[11] = Vertex(-newR*sin(22.5*3.145 / 180), b + newH, -newR*cos(22.5*3.145 / 180), 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-	v[12] = Vertex(newR*sin(22.5*3.145 / 180), b + newH, -newR*cos(22.5*3.145 / 180), 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-	v[13] = Vertex(newR*cos(22.5*3.145 / 180), b + newH, -newR*sin(22.5*3.145 / 180), 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-	v[14] = Vertex(newR*cos(22.5*3.145 / 180), b + newH, newR*sin(22.5*3.145 / 180), 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-	v[15] = Vertex(newR*sin(22.5*3.145 / 180), b + newH, newR*cos(22.5*3.145 / 180), 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-	v[16] = Vertex(-newR*sin(22.5*3.145 / 180), b + newH, newR*cos(22.5*3.145 / 180), 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	v[9] = Vertex(-newR*cos(22.5f*3.145f / 180.0f), b + newH, newR*sin(22.5f*3.145f / 180.0f), 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	v[10] = Vertex(-newR*cos(22.5f*3.145f / 180.0f), b + newH, -newR*sin(22.5f*3.145f / 180.0f), 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	v[11] = Vertex(-newR*sin(22.5f*3.145f / 180.0f), b + newH, -newR*cos(22.5f*3.145f / 180.0f), 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	v[12] = Vertex(newR*sin(22.5f*3.145f / 180.0f), b + newH, -newR*cos(22.5f*3.145f / 180.0f), 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	v[13] = Vertex(newR*cos(22.5f*3.145f / 180.0f), b + newH, -newR*sin(22.5f*3.145f / 180.0f), 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	v[14] = Vertex(newR*cos(22.5f*3.145f / 180.0f), b + newH, newR*sin(22.5f*3.145f / 180.0f), 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	v[15] = Vertex(newR*sin(22.5f*3.145f / 180.0f), b + newH, newR*cos(22.5f*3.145f / 180.0f), 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	v[16] = Vertex(-newR*sin(22.5f*3.145f / 180.0f), b + newH, newR*cos(22.5f*3.145f / 180.0f), 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 
 	meshData.Vertices.assign(&v[0], &v[17]);
 
