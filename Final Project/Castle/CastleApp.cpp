@@ -551,8 +551,10 @@ void CastleApp::UpdateWaves(const GameTimer& gt)
 	mWavesRitem->Geo->VertexBufferGPU = currWavesVB->Resource();
 }
 
+// Load all of the textures we are going to use into memory.
 void CastleApp::LoadTextures()
 {
+	// Create "grass" texture
 	auto grassTex = std::make_unique<Texture>();
 	grassTex->Name = "grassTex";
 	grassTex->Filename = L"../../Textures/grass.dds";
@@ -560,6 +562,7 @@ void CastleApp::LoadTextures()
 		mCommandList.Get(), grassTex->Filename.c_str(),
 		grassTex->Resource, grassTex->UploadHeap));
 
+	// Create "water" texture
 	auto waterTex = std::make_unique<Texture>();
 	waterTex->Name = "waterTex";
 	waterTex->Filename = L"../../Textures/water1.dds";
@@ -567,6 +570,7 @@ void CastleApp::LoadTextures()
 		mCommandList.Get(), waterTex->Filename.c_str(),
 		waterTex->Resource, waterTex->UploadHeap));
 
+	// Create "tile" texture	
 	auto tileTex = std::make_unique<Texture>();
 	tileTex->Name = "tileTex";
 	tileTex->Filename = L"../../Textures/tile.dds";
@@ -574,6 +578,7 @@ void CastleApp::LoadTextures()
 		mCommandList.Get(), tileTex->Filename.c_str(),
 		tileTex->Resource, tileTex->UploadHeap));
 
+	// Create "wood" texture	
 	auto woodTex = std::make_unique<Texture>();
 	woodTex->Name = "woodTex";
 	woodTex->Filename = L"../../Textures/wood.dds";
@@ -581,6 +586,7 @@ void CastleApp::LoadTextures()
 		mCommandList.Get(), woodTex->Filename.c_str(),
 		woodTex->Resource, woodTex->UploadHeap));
 
+	// Create "metal" texture	
 	auto metalTex = std::make_unique<Texture>();
 	metalTex->Name = "metalTex";
 	metalTex->Filename = L"../../Textures/metal.dds";
@@ -588,6 +594,7 @@ void CastleApp::LoadTextures()
 		mCommandList.Get(), metalTex->Filename.c_str(),
 		metalTex->Resource, metalTex->UploadHeap));
 
+	// Create "glass" texture	
 	auto glassTex = std::make_unique<Texture>();
 	glassTex->Name = "glassTex";
 	glassTex->Filename = L"../../Textures/glass.dds";
@@ -595,6 +602,7 @@ void CastleApp::LoadTextures()
 		mCommandList.Get(), glassTex->Filename.c_str(),
 		glassTex->Resource, glassTex->UploadHeap));
 
+	// Create "ice" texture	
 	auto iceTex = std::make_unique<Texture>();
 	iceTex->Name = "iceTex";
 	iceTex->Filename = L"../../Textures/ice.dds";
@@ -602,6 +610,7 @@ void CastleApp::LoadTextures()
 		mCommandList.Get(), iceTex->Filename.c_str(),
 		iceTex->Resource, iceTex->UploadHeap));
 
+	// Create "stone" texture	
 	auto stoneTex = std::make_unique<Texture>();
 	stoneTex->Name = "stoneTex";
 	stoneTex->Filename = L"../../Textures/stone.dds";
@@ -609,6 +618,7 @@ void CastleApp::LoadTextures()
 		mCommandList.Get(), stoneTex->Filename.c_str(),
 		stoneTex->Resource, stoneTex->UploadHeap));
 
+	// Create "brick" texture	
 	auto brick2Tex = std::make_unique<Texture>();
 	brick2Tex->Name = "brick2Tex";
 	brick2Tex->Filename = L"../../Textures/bricks2.dds";
@@ -616,6 +626,7 @@ void CastleApp::LoadTextures()
 		mCommandList.Get(), brick2Tex->Filename.c_str(),
 		brick2Tex->Resource, brick2Tex->UploadHeap));
 
+	// Create "tree" texture	
 	auto treeArrayTex = std::make_unique<Texture>();
 	treeArrayTex->Name = "treeArrayTex";
 	treeArrayTex->Filename = L"../../Textures/treeArray2.dds";
@@ -623,6 +634,7 @@ void CastleApp::LoadTextures()
 		mCommandList.Get(), treeArrayTex->Filename.c_str(),
 		treeArrayTex->Resource, treeArrayTex->UploadHeap));
 
+	// Add newly created textures into the mTextures list.
 	mTextures[grassTex->Name] = std::move(grassTex);
 	mTextures[waterTex->Name] = std::move(waterTex);
 	mTextures[tileTex->Name] = std::move(tileTex);
@@ -691,6 +703,7 @@ void CastleApp::BuildDescriptorHeaps()
 	//
 	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
+	// Grab all the textures we want to load and store them into a temp variable
 	auto grassTex = mTextures["grassTex"]->Resource;
 	auto waterTex = mTextures["waterTex"]->Resource;
 	auto tileTex = mTextures["tileTex"]->Resource;
@@ -710,6 +723,8 @@ void CastleApp::BuildDescriptorHeaps()
 	srvDesc.Texture2D.MipLevels = -1;
 	md3dDevice->CreateShaderResourceView(grassTex.Get(), &srvDesc, hDescriptor);
 
+	// One by one, we offset the descriptor by 1 and add create our shader resource for all of the,
+	
 	// next descriptor
 	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
 
@@ -1278,6 +1293,9 @@ void CastleApp::BuildFrameResources()
     }
 }
 
+// Configure and build our textures into materials and prepare to be able to apply them to objects.
+// Note: We also need to increment the "MatCBIndex" and "DiffuseSrvHeapIndex" by 1 each time
+// we add a new Material, otherwise textures will not be applied to the correct object. 
 void CastleApp::BuildMaterials()
 {
 	auto grass = std::make_unique<Material>();
@@ -1363,6 +1381,7 @@ void CastleApp::BuildMaterials()
 	treeSprites->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
 	treeSprites->Roughness = 0.125f;
 
+	// After we are done configuring the textures, its time to add it to our materials list.
 	mMaterials["grass"] = std::move(grass);
 	mMaterials["water"] = std::move(water);
 	mMaterials["tile"] = std::move(tile);
