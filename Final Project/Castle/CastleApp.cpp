@@ -567,6 +567,48 @@ void CastleApp::LoadTextures()
 		mCommandList.Get(), waterTex->Filename.c_str(),
 		waterTex->Resource, waterTex->UploadHeap));
 
+	auto tileTex = std::make_unique<Texture>();
+	tileTex->Name = "tileTex";
+	tileTex->Filename = L"../../Textures/tile.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), tileTex->Filename.c_str(),
+		tileTex->Resource, tileTex->UploadHeap));
+
+	auto woodTex = std::make_unique<Texture>();
+	woodTex->Name = "woodTex";
+	woodTex->Filename = L"../../Textures/wood.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), woodTex->Filename.c_str(),
+		woodTex->Resource, woodTex->UploadHeap));
+
+	auto metalTex = std::make_unique<Texture>();
+	metalTex->Name = "metalTex";
+	metalTex->Filename = L"../../Textures/metal.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), metalTex->Filename.c_str(),
+		metalTex->Resource, metalTex->UploadHeap));
+
+	auto glassTex = std::make_unique<Texture>();
+	glassTex->Name = "glassTex";
+	glassTex->Filename = L"../../Textures/glass.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), glassTex->Filename.c_str(),
+		glassTex->Resource, glassTex->UploadHeap));
+
+	auto iceTex = std::make_unique<Texture>();
+	iceTex->Name = "iceTex";
+	iceTex->Filename = L"../../Textures/ice.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), iceTex->Filename.c_str(),
+		iceTex->Resource, iceTex->UploadHeap));
+
+	auto stoneTex = std::make_unique<Texture>();
+	stoneTex->Name = "stoneTex";
+	stoneTex->Filename = L"../../Textures/stone.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), stoneTex->Filename.c_str(),
+		stoneTex->Resource, stoneTex->UploadHeap));
+
 	auto brick2Tex = std::make_unique<Texture>();
 	brick2Tex->Name = "brick2Tex";
 	brick2Tex->Filename = L"../../Textures/bricks2.dds";
@@ -583,6 +625,12 @@ void CastleApp::LoadTextures()
 
 	mTextures[grassTex->Name] = std::move(grassTex);
 	mTextures[waterTex->Name] = std::move(waterTex);
+	mTextures[tileTex->Name] = std::move(tileTex);
+	mTextures[woodTex->Name] = std::move(woodTex);
+	mTextures[metalTex->Name] = std::move(metalTex);
+	mTextures[glassTex->Name] = std::move(glassTex);
+	mTextures[iceTex->Name] = std::move(iceTex);
+	mTextures[stoneTex->Name] = std::move(stoneTex);
 	mTextures[brick2Tex->Name] = std::move(brick2Tex);
 	mTextures[treeArrayTex->Name] = std::move(treeArrayTex);
 }
@@ -633,7 +681,7 @@ void CastleApp::BuildDescriptorHeaps()
 	// Create the SRV heap.
 	//
 	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.NumDescriptors = 4;
+	srvHeapDesc.NumDescriptors = 10;
 	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	ThrowIfFailed(md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvDescriptorHeap)));
@@ -645,6 +693,12 @@ void CastleApp::BuildDescriptorHeaps()
 
 	auto grassTex = mTextures["grassTex"]->Resource;
 	auto waterTex = mTextures["waterTex"]->Resource;
+	auto tileTex = mTextures["tileTex"]->Resource;
+	auto woodTex = mTextures["woodTex"]->Resource;
+	auto metalTex = mTextures["metalTex"]->Resource;
+	auto glassTex = mTextures["glassTex"]->Resource;
+	auto iceTex = mTextures["iceTex"]->Resource;
+	auto stoneTex = mTextures["stoneTex"]->Resource;
 	auto brick2Tex = mTextures["brick2Tex"]->Resource;
 	auto treeArrayTex = mTextures["treeArrayTex"]->Resource;
 
@@ -661,6 +715,42 @@ void CastleApp::BuildDescriptorHeaps()
 
 	srvDesc.Format = waterTex->GetDesc().Format;
 	md3dDevice->CreateShaderResourceView(waterTex.Get(), &srvDesc, hDescriptor);
+
+	// next descriptor
+	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+	srvDesc.Format = tileTex->GetDesc().Format;
+	md3dDevice->CreateShaderResourceView(tileTex.Get(), &srvDesc, hDescriptor);
+
+	// next descriptor
+	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+	srvDesc.Format = woodTex->GetDesc().Format;
+	md3dDevice->CreateShaderResourceView(woodTex.Get(), &srvDesc, hDescriptor);
+
+	// next descriptor
+	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+	srvDesc.Format = metalTex->GetDesc().Format;
+	md3dDevice->CreateShaderResourceView(metalTex.Get(), &srvDesc, hDescriptor);
+
+	// next descriptor
+	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+	srvDesc.Format = glassTex->GetDesc().Format;
+	md3dDevice->CreateShaderResourceView(glassTex.Get(), &srvDesc, hDescriptor);
+
+	// next descriptor
+	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+	srvDesc.Format = iceTex->GetDesc().Format;
+	md3dDevice->CreateShaderResourceView(iceTex.Get(), &srvDesc, hDescriptor);
+
+	// next descriptor
+	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+	srvDesc.Format = stoneTex->GetDesc().Format;
+	md3dDevice->CreateShaderResourceView(stoneTex.Get(), &srvDesc, hDescriptor);
 
 	// next descriptor
 	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
@@ -1208,24 +1298,79 @@ void CastleApp::BuildMaterials()
 	water->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 	water->Roughness = 0.0f;
 
+	auto tile = std::make_unique<Material>();
+	tile->Name = "tile";
+	tile->MatCBIndex = 2;
+	tile->DiffuseSrvHeapIndex = 2;
+	tile->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	tile->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	tile->Roughness = 0.25f;
+
+
+	auto wood = std::make_unique<Material>();
+	wood->Name = "wood";
+	wood->MatCBIndex = 3;
+	wood->DiffuseSrvHeapIndex = 3;
+	wood->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	wood->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	wood->Roughness = 0.25f;
+
+	auto metal = std::make_unique<Material>();
+	metal->Name = "metal";
+	metal->MatCBIndex = 4;
+	metal->DiffuseSrvHeapIndex = 4;
+	metal->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	metal->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	metal->Roughness = 0.25f;
+
+	auto glass = std::make_unique<Material>();
+	glass->Name = "glass";
+	glass->MatCBIndex = 5;
+	glass->DiffuseSrvHeapIndex = 5;
+	glass->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	glass->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	glass->Roughness = 0.25f;
+
+	auto ice = std::make_unique<Material>();
+	ice->Name = "ice";
+	ice->MatCBIndex = 6;
+	ice->DiffuseSrvHeapIndex = 6;
+	ice->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	ice->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	ice->Roughness = 0.25f;
+
+	auto stone = std::make_unique<Material>();
+	stone->Name = "stone";
+	stone->MatCBIndex = 7;
+	stone->DiffuseSrvHeapIndex = 7;
+	stone->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	stone->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	stone->Roughness = 0.25f;
+
 	auto brick2 = std::make_unique<Material>();
 	brick2->Name = "brick2";
-	brick2->MatCBIndex = 2;
-	brick2->DiffuseSrvHeapIndex = 2;
+	brick2->MatCBIndex = 8;
+	brick2->DiffuseSrvHeapIndex = 8;
 	brick2->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	brick2->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
 	brick2->Roughness = 0.25f;
 
 	auto treeSprites = std::make_unique<Material>();
 	treeSprites->Name = "treeSprites";
-	treeSprites->MatCBIndex = 3;
-	treeSprites->DiffuseSrvHeapIndex = 3;
+	treeSprites->MatCBIndex = 9;
+	treeSprites->DiffuseSrvHeapIndex = 9;
 	treeSprites->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	treeSprites->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
 	treeSprites->Roughness = 0.125f;
 
 	mMaterials["grass"] = std::move(grass);
 	mMaterials["water"] = std::move(water);
+	mMaterials["tile"] = std::move(tile);
+	mMaterials["wood"] = std::move(wood);
+	mMaterials["metal"] = std::move(metal);
+	mMaterials["glass"] = std::move(glass);
+	mMaterials["ice"] = std::move(ice);
+	mMaterials["stone"] = std::move(stone);
 	mMaterials["brick2"] = std::move(brick2);
 	mMaterials["treeSprites"] = std::move(treeSprites);
 }
@@ -1542,7 +1687,7 @@ void CastleApp::BuildTowers() {
 		* XMMatrixTranslation(59.0f, 52.0f, -59.0f));
 	XMStoreFloat4x4(&coneFrontL->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	coneFrontL->ObjCBIndex = objCBIndex++;
-	coneFrontL->Mat = mMaterials["brick2"].get();
+	coneFrontL->Mat = mMaterials["wood"].get();
 	coneFrontL->Geo = mGeometries["shapeGeo"].get();
 	coneFrontL->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	coneFrontL->IndexCount = coneFrontL->Geo->DrawArgs["cone"].IndexCount;
@@ -1570,7 +1715,7 @@ void CastleApp::BuildTowers() {
 		* XMMatrixTranslation(59.0f, 52.0f, 59.0f));
 	XMStoreFloat4x4(&coneFrontR->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	coneFrontR->ObjCBIndex = objCBIndex++;
-	coneFrontR->Mat = mMaterials["brick2"].get();
+	coneFrontR->Mat = mMaterials["wood"].get();
 	coneFrontR->Geo = mGeometries["shapeGeo"].get();
 	coneFrontR->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	coneFrontR->IndexCount = coneFrontR->Geo->DrawArgs["cone"].IndexCount;
@@ -1598,7 +1743,7 @@ void CastleApp::BuildTowers() {
 		* XMMatrixTranslation(-59.0f, 52.0f, 59.0f));
 	XMStoreFloat4x4(&coneBackR->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	coneBackR->ObjCBIndex = objCBIndex++;
-	coneBackR->Mat = mMaterials["brick2"].get();
+	coneBackR->Mat = mMaterials["wood"].get();
 	coneBackR->Geo = mGeometries["shapeGeo"].get();
 	coneBackR->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	coneBackR->IndexCount = coneBackR->Geo->DrawArgs["cone"].IndexCount;
@@ -1626,7 +1771,7 @@ void CastleApp::BuildTowers() {
 		* XMMatrixTranslation(-59.0f, 52.0f, -59.0f));
 	XMStoreFloat4x4(&coneBackL->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	coneBackL->ObjCBIndex = objCBIndex++;
-	coneBackL->Mat = mMaterials["brick2"].get();
+	coneBackL->Mat = mMaterials["wood"].get();
 	coneBackL->Geo = mGeometries["shapeGeo"].get();
 	coneBackL->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	coneBackL->IndexCount = coneBackL->Geo->DrawArgs["cone"].IndexCount;
@@ -1668,7 +1813,7 @@ void CastleApp::BuildRailAndSpikes(float posX, float posY, float posZ, int dirX,
 		* XMMatrixTranslation(posX, posY, posZ));
 	XMStoreFloat4x4(&railFrontO->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	railFrontO->ObjCBIndex = objCBIndex++;
-	railFrontO->Mat = mMaterials["brick2"].get();
+	railFrontO->Mat = mMaterials["wood"].get();
 	railFrontO->Geo = mGeometries["shapeGeo"].get();
 	railFrontO->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	railFrontO->IndexCount = railFrontO->Geo->DrawArgs["box"].IndexCount;
@@ -1684,7 +1829,7 @@ void CastleApp::BuildRailAndSpikes(float posX, float posY, float posZ, int dirX,
 				* XMMatrixTranslation(posX + i*10.0f*dirX, posY + 1.0f, posZ + i*10.0f*dirZ));
 			XMStoreFloat4x4(&block->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 			block->ObjCBIndex = objCBIndex++;
-			block->Mat = mMaterials["brick2"].get();
+			block->Mat = mMaterials["stone"].get();
 			block->Geo = mGeometries["shapeGeo"].get();
 			block->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			block->IndexCount = block->Geo->DrawArgs["box"].IndexCount;
@@ -1698,7 +1843,7 @@ void CastleApp::BuildRailAndSpikes(float posX, float posY, float posZ, int dirX,
 				* XMMatrixTranslation(posX + i*10.0f*dirX, posY + 3.0f, posZ + i*10.0f*dirZ));
 			XMStoreFloat4x4(&pyramid->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 			pyramid->ObjCBIndex = objCBIndex++;
-			pyramid->Mat = mMaterials["brick2"].get();
+			pyramid->Mat = mMaterials["stone"].get();
 			pyramid->Geo = mGeometries["shapeGeo"].get();
 			pyramid->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			pyramid->IndexCount = pyramid->Geo->DrawArgs["pyramid"].IndexCount;
@@ -1713,7 +1858,7 @@ void CastleApp::BuildRailAndSpikes(float posX, float posY, float posZ, int dirX,
 				* XMMatrixTranslation(posX + i*10.0f*dirX, posY + 1.0f, posZ + i*10.0f*dirZ));
 			XMStoreFloat4x4(&block->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 			block->ObjCBIndex = objCBIndex++;
-			block->Mat = mMaterials["brick2"].get();
+			block->Mat = mMaterials["stone"].get();
 			block->Geo = mGeometries["shapeGeo"].get();
 			block->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			block->IndexCount = block->Geo->DrawArgs["box"].IndexCount;
@@ -1727,7 +1872,7 @@ void CastleApp::BuildRailAndSpikes(float posX, float posY, float posZ, int dirX,
 				* XMMatrixTranslation(posX + i*10.0f*dirX, posY + 3.0f, posZ + i*10.0f*dirZ));
 			XMStoreFloat4x4(&pyramid->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 			pyramid->ObjCBIndex = objCBIndex++;
-			pyramid->Mat = mMaterials["brick2"].get();
+			pyramid->Mat = mMaterials["stone"].get();
 			pyramid->Geo = mGeometries["shapeGeo"].get();
 			pyramid->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			pyramid->IndexCount = pyramid->Geo->DrawArgs["pyramid"].IndexCount;
@@ -1741,7 +1886,7 @@ void CastleApp::BuildRailAndSpikes(float posX, float posY, float posZ, int dirX,
 				* XMMatrixTranslation(posX - i*10.0f*dirX, posY + 1.0f, posZ - i*10.0f*dirZ));
 			XMStoreFloat4x4(&block2->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 			block2->ObjCBIndex = objCBIndex++;
-			block2->Mat = mMaterials["brick2"].get();
+			block2->Mat = mMaterials["stone"].get();
 			block2->Geo = mGeometries["shapeGeo"].get();
 			block2->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			block2->IndexCount = block2->Geo->DrawArgs["box"].IndexCount;
@@ -1755,7 +1900,7 @@ void CastleApp::BuildRailAndSpikes(float posX, float posY, float posZ, int dirX,
 				* XMMatrixTranslation(posX - i*10.0f*dirX, posY + 3.0f, posZ - i*10.0f*dirZ));
 			XMStoreFloat4x4(&pyramid2->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 			pyramid2->ObjCBIndex = objCBIndex++;
-			pyramid2->Mat = mMaterials["brick2"].get();
+			pyramid2->Mat = mMaterials["stone"].get();
 			pyramid2->Geo = mGeometries["shapeGeo"].get();
 			pyramid2->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			pyramid2->IndexCount = pyramid2->Geo->DrawArgs["pyramid"].IndexCount;
@@ -1775,7 +1920,7 @@ void CastleApp::BuildInner() {
 		* XMMatrixTranslation(0.0f, 0.1f, 0.0f));
 	XMStoreFloat4x4(&floor->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	floor->ObjCBIndex = objCBIndex++;
-	floor->Mat = mMaterials["brick2"].get();
+	floor->Mat = mMaterials["tile"].get();
 	floor->Geo = mGeometries["shapeGeo"].get();
 	floor->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	floor->IndexCount = floor->Geo->DrawArgs["grid"].IndexCount;
@@ -1792,7 +1937,7 @@ void CastleApp::BuildInner() {
 			* XMMatrixTranslation(-30.0f + 30.0f*i, 7.5f, -15.0f));
 		XMStoreFloat4x4(&cylinder->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 		cylinder->ObjCBIndex = objCBIndex++;
-		cylinder->Mat = mMaterials["brick2"].get();
+		cylinder->Mat = mMaterials["metal"].get();
 		cylinder->Geo = mGeometries["shapeGeo"].get();
 		cylinder->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		cylinder->IndexCount = cylinder->Geo->DrawArgs["cylinder"].IndexCount;
@@ -1806,7 +1951,7 @@ void CastleApp::BuildInner() {
 			* XMMatrixTranslation(-30.0f + 30.0f*i, 16.5f, -15.0f));
 		XMStoreFloat4x4(&sphere->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 		sphere->ObjCBIndex = objCBIndex++;
-		sphere->Mat = mMaterials["brick2"].get();
+		sphere->Mat = mMaterials["glass"].get();
 		sphere->Geo = mGeometries["shapeGeo"].get();
 		sphere->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		sphere->IndexCount = sphere->Geo->DrawArgs["sphere"].IndexCount;
@@ -1821,7 +1966,7 @@ void CastleApp::BuildInner() {
 			* XMMatrixTranslation(-30.0f + 30.0f*i, 7.5f, 15.0f));
 		XMStoreFloat4x4(&cylinder->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 		cylinder->ObjCBIndex = objCBIndex++;
-		cylinder->Mat = mMaterials["brick2"].get();
+		cylinder->Mat = mMaterials["metal"].get();
 		cylinder->Geo = mGeometries["shapeGeo"].get();
 		cylinder->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		cylinder->IndexCount = cylinder->Geo->DrawArgs["cylinder"].IndexCount;
@@ -1835,7 +1980,7 @@ void CastleApp::BuildInner() {
 			* XMMatrixTranslation(-30.0f + 30.0f*i, 16.5f, 15.0f));
 		XMStoreFloat4x4(&sphere->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 		sphere->ObjCBIndex = objCBIndex++;
-		sphere->Mat = mMaterials["brick2"].get();
+		sphere->Mat = mMaterials["glass"].get();
 		sphere->Geo = mGeometries["shapeGeo"].get();
 		sphere->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		sphere->IndexCount = sphere->Geo->DrawArgs["sphere"].IndexCount;
@@ -1851,7 +1996,7 @@ void CastleApp::BuildInner() {
 	XMStoreFloat4x4(&altarLower->World, XMMatrixScaling(15.0f, 1.0f, 15.0f) * XMMatrixTranslation(-35.0f, 0.6f, 0.0f));
 	XMStoreFloat4x4(&altarLower->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	altarLower->ObjCBIndex = objCBIndex++;
-	altarLower->Mat = mMaterials["brick2"].get();
+	altarLower->Mat = mMaterials["stone"].get();
 	altarLower->Geo = mGeometries["shapeGeo"].get();
 	altarLower->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	altarLower->IndexCount = altarLower->Geo->DrawArgs["box"].IndexCount;
@@ -1865,7 +2010,7 @@ void CastleApp::BuildInner() {
 	XMStoreFloat4x4(&altarUpper->World, XMMatrixScaling(11.0f, 1.0f, 11.0f) * XMMatrixTranslation(-35.0f, 1.6f, 0.0f));
 	XMStoreFloat4x4(&altarUpper->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	altarUpper->ObjCBIndex = objCBIndex++;
-	altarUpper->Mat = mMaterials["brick2"].get();
+	altarUpper->Mat = mMaterials["stone"].get();
 	altarUpper->Geo = mGeometries["shapeGeo"].get();
 	altarUpper->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	altarUpper->IndexCount = altarUpper->Geo->DrawArgs["box"].IndexCount;
@@ -1878,7 +2023,7 @@ void CastleApp::BuildInner() {
 	XMStoreFloat4x4(&torus->World, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(-35.0f, 3.8f, 0.0f));
 	XMStoreFloat4x4(&torus->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	torus->ObjCBIndex = objCBIndex++;
-	torus->Mat = mMaterials["brick2"].get();
+	torus->Mat = mMaterials["ice"].get();
 	torus->Geo = mGeometries["shapeGeo"].get();
 	torus->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	torus->IndexCount = torus->Geo->DrawArgs["torus"].IndexCount;
