@@ -1451,7 +1451,8 @@ void CastleApp::BuildRenderItems()
 	//floor
     auto gridRitem = std::make_unique<RenderItem>();
 	gridRitem->World = MathHelper::Identity4x4();
-	XMStoreFloat4x4(&gridRitem->World, XMMatrixScaling(1.0f, 1.0, 1.0f));
+	XMStoreFloat4x4(&gridRitem->World, XMMatrixScaling(6.0f, 1.0, 3.0f) 
+		* XMMatrixTranslation(104.0f, 0.0f, 0.0f));
 	XMStoreFloat4x4(&gridRitem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	gridRitem->ObjCBIndex = objCBIndex++;
 	gridRitem->Mat = mMaterials["grass"].get();
