@@ -8,6 +8,7 @@
 #include "../../Common/GeometryGenerator.h"
 #include "FrameResource.h"
 #include "Waves.h"
+#include <time.h>
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
@@ -107,6 +108,7 @@ private:
 	void BuildRailings();
 	void BuildRailAndSpikes(float posX, float posY, float posZ, int dirX, int dirZ);
 	void BuildInner();
+	void BuildMaze();
 
     void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
 
@@ -148,7 +150,8 @@ private:
 
     PassConstants mMainPassCB;
 
-	XMFLOAT3 mEyePos = { 0.0f, 0.0f, 0.0f };
+	//My eye position
+	XMFLOAT3 mEyePos = { 232.0f, 0.0f, 0.0f };// { 0.0f, 0.0f, 0.0f };
 	XMFLOAT4X4 mView = MathHelper::Identity4x4();
 	XMFLOAT4X4 mProj = MathHelper::Identity4x4();
 
@@ -208,7 +211,8 @@ bool CastleApp::Initialize()
     mCbvSrvDescriptorSize = md3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
     mWaves = std::make_unique<Waves>(128, 128, 1.0f, 0.03f, 4.0f, 0.2f);
- 
+	srand(time(NULL));
+
 	LoadTextures();
     BuildRootSignature();
 	BuildDescriptorHeaps();
@@ -359,8 +363,8 @@ void CastleApp::OnMouseMove(WPARAM btnState, int x, int y)
         float dy = XMConvertToRadians(0.25f*static_cast<float>(y - mLastMousePos.y));
 
         // Update angles based on input to orbit camera around box.
-        mTheta += dx;
-        mPhi += dy;
+        mTheta -= dx;
+        mPhi -= dy;
 
         // Restrict the angle mPhi.
         mPhi = MathHelper::Clamp(mPhi, 0.1f, MathHelper::Pi - 0.1f);
@@ -375,7 +379,7 @@ void CastleApp::OnMouseMove(WPARAM btnState, int x, int y)
         mRadius += dx - dy;
 
         // Restrict the radius.
-        mRadius = MathHelper::Clamp(mRadius, 5.0f, 150.0f);
+        mRadius = MathHelper::Clamp(mRadius, 5.0f, 450.0f);
     }
 
     mLastMousePos.x = x;
@@ -405,25 +409,25 @@ void CastleApp::UpdateCamera(const GameTimer& gt)
 void CastleApp::AnimateMaterials(const GameTimer& gt)
 {
 	// Scroll the water material texture coordinates.
-	auto waterMat = mMaterials["water"].get();
+	//auto waterMat = mMaterials["water"].get();
 
-	float& tu = waterMat->MatTransform(3, 0);
-	float& tv = waterMat->MatTransform(3, 1);
+	//float& tu = waterMat->MatTransform(3, 0);
+	//float& tv = waterMat->MatTransform(3, 1);
 
-	tu += 0.1f * gt.DeltaTime();
-	tv += 0.02f * gt.DeltaTime();
+	//tu += 0.1f * gt.DeltaTime();
+	//tv += 0.02f * gt.DeltaTime();
 
-	if(tu >= 1.0f)
-		tu -= 1.0f;
+	//if(tu >= 1.0f)
+	//	tu -= 1.0f;
 
-	if(tv >= 1.0f)
-		tv -= 1.0f;
+	//if(tv >= 1.0f)
+	//	tv -= 1.0f;
 
-	waterMat->MatTransform(3, 0) = tu;
-	waterMat->MatTransform(3, 1) = tv;
+	//waterMat->MatTransform(3, 0) = tu;
+	//waterMat->MatTransform(3, 1) = tv;
 
-	// Material has changed, so need to update cbuffer.
-	waterMat->NumFramesDirty = gNumFrameResources;
+	//// Material has changed, so need to update cbuffer.
+	//waterMat->NumFramesDirty = gNumFrameResources;
 }
 
 void CastleApp::UpdateObjectCBs(const GameTimer& gt)
@@ -567,6 +571,48 @@ void CastleApp::LoadTextures()
 		mCommandList.Get(), waterTex->Filename.c_str(),
 		waterTex->Resource, waterTex->UploadHeap));
 
+	auto tileTex = std::make_unique<Texture>();
+	tileTex->Name = "tileTex";
+	tileTex->Filename = L"../../Textures/tile.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), tileTex->Filename.c_str(),
+		tileTex->Resource, tileTex->UploadHeap));
+
+	auto woodTex = std::make_unique<Texture>();
+	woodTex->Name = "woodTex";
+	woodTex->Filename = L"../../Textures/wood.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), woodTex->Filename.c_str(),
+		woodTex->Resource, woodTex->UploadHeap));
+
+	auto metalTex = std::make_unique<Texture>();
+	metalTex->Name = "metalTex";
+	metalTex->Filename = L"../../Textures/metal.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), metalTex->Filename.c_str(),
+		metalTex->Resource, metalTex->UploadHeap));
+
+	auto glassTex = std::make_unique<Texture>();
+	glassTex->Name = "glassTex";
+	glassTex->Filename = L"../../Textures/glass.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), glassTex->Filename.c_str(),
+		glassTex->Resource, glassTex->UploadHeap));
+
+	auto iceTex = std::make_unique<Texture>();
+	iceTex->Name = "iceTex";
+	iceTex->Filename = L"../../Textures/ice.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), iceTex->Filename.c_str(),
+		iceTex->Resource, iceTex->UploadHeap));
+
+	auto stoneTex = std::make_unique<Texture>();
+	stoneTex->Name = "stoneTex";
+	stoneTex->Filename = L"../../Textures/stone.dds";
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), stoneTex->Filename.c_str(),
+		stoneTex->Resource, stoneTex->UploadHeap));
+
 	auto brick2Tex = std::make_unique<Texture>();
 	brick2Tex->Name = "brick2Tex";
 	brick2Tex->Filename = L"../../Textures/bricks2.dds";
@@ -583,6 +629,12 @@ void CastleApp::LoadTextures()
 
 	mTextures[grassTex->Name] = std::move(grassTex);
 	mTextures[waterTex->Name] = std::move(waterTex);
+	mTextures[tileTex->Name] = std::move(tileTex);
+	mTextures[woodTex->Name] = std::move(woodTex);
+	mTextures[metalTex->Name] = std::move(metalTex);
+	mTextures[glassTex->Name] = std::move(glassTex);
+	mTextures[iceTex->Name] = std::move(iceTex);
+	mTextures[stoneTex->Name] = std::move(stoneTex);
 	mTextures[brick2Tex->Name] = std::move(brick2Tex);
 	mTextures[treeArrayTex->Name] = std::move(treeArrayTex);
 }
@@ -633,7 +685,7 @@ void CastleApp::BuildDescriptorHeaps()
 	// Create the SRV heap.
 	//
 	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.NumDescriptors = 4;
+	srvHeapDesc.NumDescriptors = 10;
 	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	ThrowIfFailed(md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvDescriptorHeap)));
@@ -645,6 +697,12 @@ void CastleApp::BuildDescriptorHeaps()
 
 	auto grassTex = mTextures["grassTex"]->Resource;
 	auto waterTex = mTextures["waterTex"]->Resource;
+	auto tileTex = mTextures["tileTex"]->Resource;
+	auto woodTex = mTextures["woodTex"]->Resource;
+	auto metalTex = mTextures["metalTex"]->Resource;
+	auto glassTex = mTextures["glassTex"]->Resource;
+	auto iceTex = mTextures["iceTex"]->Resource;
+	auto stoneTex = mTextures["stoneTex"]->Resource;
 	auto brick2Tex = mTextures["brick2Tex"]->Resource;
 	auto treeArrayTex = mTextures["treeArrayTex"]->Resource;
 
@@ -661,6 +719,42 @@ void CastleApp::BuildDescriptorHeaps()
 
 	srvDesc.Format = waterTex->GetDesc().Format;
 	md3dDevice->CreateShaderResourceView(waterTex.Get(), &srvDesc, hDescriptor);
+
+	// next descriptor
+	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+	srvDesc.Format = tileTex->GetDesc().Format;
+	md3dDevice->CreateShaderResourceView(tileTex.Get(), &srvDesc, hDescriptor);
+
+	// next descriptor
+	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+	srvDesc.Format = woodTex->GetDesc().Format;
+	md3dDevice->CreateShaderResourceView(woodTex.Get(), &srvDesc, hDescriptor);
+
+	// next descriptor
+	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+	srvDesc.Format = metalTex->GetDesc().Format;
+	md3dDevice->CreateShaderResourceView(metalTex.Get(), &srvDesc, hDescriptor);
+
+	// next descriptor
+	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+	srvDesc.Format = glassTex->GetDesc().Format;
+	md3dDevice->CreateShaderResourceView(glassTex.Get(), &srvDesc, hDescriptor);
+
+	// next descriptor
+	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+	srvDesc.Format = iceTex->GetDesc().Format;
+	md3dDevice->CreateShaderResourceView(iceTex.Get(), &srvDesc, hDescriptor);
+
+	// next descriptor
+	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
+
+	srvDesc.Format = stoneTex->GetDesc().Format;
+	md3dDevice->CreateShaderResourceView(stoneTex.Get(), &srvDesc, hDescriptor);
 
 	// next descriptor
 	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
@@ -978,51 +1072,51 @@ void CastleApp::BuildShapeGeometry()
 		vertices[k].TexC = torus.Vertices[i].TexC;
 	}
 
-	std::vector<std::uint16_t> indices;
-	indices.insert(indices.end(), std::begin(box.GetIndices16()), std::end(box.GetIndices16()));
-	indices.insert(indices.end(), std::begin(grid.GetIndices16()), std::end(grid.GetIndices16()));
-	indices.insert(indices.end(), std::begin(sphere.GetIndices16()), std::end(sphere.GetIndices16()));
-	indices.insert(indices.end(), std::begin(cylinder.GetIndices16()), std::end(cylinder.GetIndices16()));
-	indices.insert(indices.end(), std::begin(pyramid.GetIndices16()), std::end(pyramid.GetIndices16()));
-	indices.insert(indices.end(), std::begin(cone.GetIndices16()), std::end(cone.GetIndices16()));
-	indices.insert(indices.end(), std::begin(diamond.GetIndices16()), std::end(diamond.GetIndices16()));
-	indices.insert(indices.end(), std::begin(torus.GetIndices16()), std::end(torus.GetIndices16()));
+std::vector<std::uint16_t> indices;
+indices.insert(indices.end(), std::begin(box.GetIndices16()), std::end(box.GetIndices16()));
+indices.insert(indices.end(), std::begin(grid.GetIndices16()), std::end(grid.GetIndices16()));
+indices.insert(indices.end(), std::begin(sphere.GetIndices16()), std::end(sphere.GetIndices16()));
+indices.insert(indices.end(), std::begin(cylinder.GetIndices16()), std::end(cylinder.GetIndices16()));
+indices.insert(indices.end(), std::begin(pyramid.GetIndices16()), std::end(pyramid.GetIndices16()));
+indices.insert(indices.end(), std::begin(cone.GetIndices16()), std::end(cone.GetIndices16()));
+indices.insert(indices.end(), std::begin(diamond.GetIndices16()), std::end(diamond.GetIndices16()));
+indices.insert(indices.end(), std::begin(torus.GetIndices16()), std::end(torus.GetIndices16()));
 
-	const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
-	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
+const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
+const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
 
-	auto geo = std::make_unique<MeshGeometry>();
-	geo->Name = "shapeGeo";
+auto geo = std::make_unique<MeshGeometry>();
+geo->Name = "shapeGeo";
 
-	ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
-	CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
+ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
+CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
 
-	ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
-	CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
+ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
+CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
 
-	geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
+geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
+	mCommandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
 
-	geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
-		mCommandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
+geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
+	mCommandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
 
-	geo->VertexByteStride = sizeof(Vertex);
-	geo->VertexBufferByteSize = vbByteSize;
-	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-	geo->IndexBufferByteSize = ibByteSize;
+geo->VertexByteStride = sizeof(Vertex);
+geo->VertexBufferByteSize = vbByteSize;
+geo->IndexFormat = DXGI_FORMAT_R16_UINT;
+geo->IndexBufferByteSize = ibByteSize;
 
-	geo->DrawArgs["box"] = boxSubmesh;
-	geo->DrawArgs["grid"] = gridSubmesh;
-	geo->DrawArgs["sphere"] = sphereSubmesh;
-	geo->DrawArgs["cylinder"] = cylinderSubmesh;
-	geo->DrawArgs["pyramid"] = pyramidSubmesh;
-	geo->DrawArgs["cone"] = coneSubmesh;
-	geo->DrawArgs["diamond"] = diamondSubmesh;
-	geo->DrawArgs["torus"] = torusSubmesh;
+geo->DrawArgs["box"] = boxSubmesh;
+geo->DrawArgs["grid"] = gridSubmesh;
+geo->DrawArgs["sphere"] = sphereSubmesh;
+geo->DrawArgs["cylinder"] = cylinderSubmesh;
+geo->DrawArgs["pyramid"] = pyramidSubmesh;
+geo->DrawArgs["cone"] = coneSubmesh;
+geo->DrawArgs["diamond"] = diamondSubmesh;
+geo->DrawArgs["torus"] = torusSubmesh;
 
 
 
-	mGeometries[geo->Name] = std::move(geo);
+mGeometries[geo->Name] = std::move(geo);
 }
 
 void CastleApp::BuildTreeSpritesGeometry()
@@ -1033,12 +1127,76 @@ void CastleApp::BuildTreeSpritesGeometry()
 		XMFLOAT2 Size;
 	};
 
-	static const int treeCount = 2;
+	static const int treeCount = 32;
 	std::array<TreeSpriteVertex, treeCount> vertices;
-	for(UINT i = 0; i < treeCount; ++i)
+	//build an object outside x values -98 > x < 306. inbetween pt = 104, 202 diff
+	//outside z values -90.1 > z < 90.1
+
+	bool inXRange;
+	bool inZRange;;
+
+	for (UINT i = 0; i < treeCount; ++i)
 	{
-		float x = MathHelper::RandF(-45.0f, 45.0f);
-		float z = MathHelper::RandF(-45.0f, 45.0f);
+		inXRange = false;
+		inZRange = false;
+
+		//random number along boundaries
+		//makes sures the tree spawns OUTSIDE castle and maze grounds
+		//first step isi to generate random points.
+		float x = MathHelper::RandF(-98.0f - 45.0f, 306.0f + 45.0f);
+		float z = MathHelper::RandF(-90.1f - 45.0f, 90.1f + 45.0f);
+
+
+		if (x > -90 && x < 306)
+			inXRange = true;
+		if (z > -90.1f && z < 90.1f)
+			inZRange = true;
+
+		float distToMove = 0.0f;
+		if (inXRange && !inZRange) {
+			if (x < 104.0f) {
+				distToMove = (-98.0f - x);
+			} else {
+				distToMove = (404.0f - x);
+			}
+			x += distToMove;
+
+		} else if (!inXRange && inZRange) {
+			if (z < 0.0f) {
+				distToMove = (-90.1f - z);
+			}
+			else {
+				distToMove = (90.1f - z);
+			}
+			z += distToMove;
+		}
+		else if (inXRange && inZRange) {
+			//choose which side to push towards
+			int num = MathHelper::RandSign();
+			if (num < 0){
+				//flip x 
+				if (x < 104.0f) {
+					distToMove = (-98.0f - x);
+				}
+				else {
+					distToMove = (404.0f - x);
+				}
+				x += distToMove;
+
+				
+			}
+			else {
+				//flip the z axis instead to push it out of castle
+				if (z < 0.0f) {
+					distToMove = (-90.1f - z);
+				}
+				else {
+					distToMove = (90.1f - z);
+				}
+				z += distToMove;
+			}
+		}
+
 		float y = GetHillsHeight(x, z);
 
 		// Move tree slightly above land height.
@@ -1048,10 +1206,12 @@ void CastleApp::BuildTreeSpritesGeometry()
 		vertices[i].Size = XMFLOAT2(20.0f, 20.0f);
 	}
 
-	std::array<std::uint16_t, 16> indices =
+	std::array<std::uint16_t, 32> indices =
 	{
 		0, 1, 2, 3, 4, 5, 6, 7,
-		8, 9, 10, 11, 12, 13, 14, 15
+		8, 9, 10, 11, 12, 13, 14, 15, 
+		16, 17, 18, 19, 20, 21, 22, 23, 
+		24, 25, 26, 27, 28, 29, 30, 31
 	};
 
 	const UINT vbByteSize = (UINT)vertices.size() * sizeof(TreeSpriteVertex);
@@ -1208,24 +1368,79 @@ void CastleApp::BuildMaterials()
 	water->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 	water->Roughness = 0.0f;
 
+	auto tile = std::make_unique<Material>();
+	tile->Name = "tile";
+	tile->MatCBIndex = 2;
+	tile->DiffuseSrvHeapIndex = 2;
+	tile->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	tile->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	tile->Roughness = 0.25f;
+
+
+	auto wood = std::make_unique<Material>();
+	wood->Name = "wood";
+	wood->MatCBIndex = 3;
+	wood->DiffuseSrvHeapIndex = 3;
+	wood->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	wood->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	wood->Roughness = 0.25f;
+
+	auto metal = std::make_unique<Material>();
+	metal->Name = "metal";
+	metal->MatCBIndex = 4;
+	metal->DiffuseSrvHeapIndex = 4;
+	metal->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	metal->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	metal->Roughness = 0.25f;
+
+	auto glass = std::make_unique<Material>();
+	glass->Name = "glass";
+	glass->MatCBIndex = 5;
+	glass->DiffuseSrvHeapIndex = 5;
+	glass->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	glass->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	glass->Roughness = 0.25f;
+
+	auto ice = std::make_unique<Material>();
+	ice->Name = "ice";
+	ice->MatCBIndex = 6;
+	ice->DiffuseSrvHeapIndex = 6;
+	ice->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	ice->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	ice->Roughness = 0.25f;
+
+	auto stone = std::make_unique<Material>();
+	stone->Name = "stone";
+	stone->MatCBIndex = 7;
+	stone->DiffuseSrvHeapIndex = 7;
+	stone->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	stone->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	stone->Roughness = 0.25f;
+
 	auto brick2 = std::make_unique<Material>();
 	brick2->Name = "brick2";
-	brick2->MatCBIndex = 2;
-	brick2->DiffuseSrvHeapIndex = 2;
+	brick2->MatCBIndex = 8;
+	brick2->DiffuseSrvHeapIndex = 8;
 	brick2->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	brick2->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
 	brick2->Roughness = 0.25f;
 
 	auto treeSprites = std::make_unique<Material>();
 	treeSprites->Name = "treeSprites";
-	treeSprites->MatCBIndex = 3;
-	treeSprites->DiffuseSrvHeapIndex = 3;
+	treeSprites->MatCBIndex = 9;
+	treeSprites->DiffuseSrvHeapIndex = 9;
 	treeSprites->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	treeSprites->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
 	treeSprites->Roughness = 0.125f;
 
 	mMaterials["grass"] = std::move(grass);
 	mMaterials["water"] = std::move(water);
+	mMaterials["tile"] = std::move(tile);
+	mMaterials["wood"] = std::move(wood);
+	mMaterials["metal"] = std::move(metal);
+	mMaterials["glass"] = std::move(glass);
+	mMaterials["ice"] = std::move(ice);
+	mMaterials["stone"] = std::move(stone);
 	mMaterials["brick2"] = std::move(brick2);
 	mMaterials["treeSprites"] = std::move(treeSprites);
 }
@@ -1236,7 +1451,7 @@ void CastleApp::BuildRenderItems()
 	//floor
     auto gridRitem = std::make_unique<RenderItem>();
 	gridRitem->World = MathHelper::Identity4x4();
-	XMStoreFloat4x4(&gridRitem->World, XMMatrixScaling(400.0f, 1.0, 400.0f));
+	XMStoreFloat4x4(&gridRitem->World, XMMatrixScaling(1.0f, 1.0, 1.0f));
 	XMStoreFloat4x4(&gridRitem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	gridRitem->ObjCBIndex = objCBIndex++;
 	gridRitem->Mat = mMaterials["grass"].get();
@@ -1254,6 +1469,7 @@ void CastleApp::BuildRenderItems()
 	BuildTowers();
 	BuildRailings();
 	BuildInner();
+	BuildMaze();
 
 
 	BuildWaves();
@@ -1362,7 +1578,10 @@ std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> CastleApp::GetStaticSamplers()
 
 float CastleApp::GetHillsHeight(float x, float z)const
 {
-    return 0.00f*(z*sinf(0.1f*x) + x*cosf(0.1f*z));
+	//this function generates the terrain height...
+	return 0;
+		//return 0.10f*(z*sinf(0.1f*x) + x*cosf(0.1f*z));
+
 }
 
 XMFLOAT3 CastleApp::GetHillsNormal(float x, float z)const
@@ -1383,8 +1602,8 @@ void CastleApp::BuildWaves() {
 	auto wavesRitem = std::make_unique<RenderItem>();
 	//wavesRitem->World = MathHelper::Identity4x4();
 
-	XMStoreFloat4x4(&wavesRitem->World, XMMatrixScaling(.01f, .01f, .01f)
-		* XMMatrixTranslation(150.0f, 7.0f, -15.65f));
+	XMStoreFloat4x4(&wavesRitem->World, XMMatrixScaling(10.0f, 1.0f, 10.0f)
+		* XMMatrixTranslation(0.0f, -5.0f, 0.0f));
 	XMStoreFloat4x4(&wavesRitem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	wavesRitem->ObjCBIndex = objCBIndex++;
 	wavesRitem->Mat = mMaterials["water"].get();
@@ -1542,7 +1761,7 @@ void CastleApp::BuildTowers() {
 		* XMMatrixTranslation(59.0f, 52.0f, -59.0f));
 	XMStoreFloat4x4(&coneFrontL->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	coneFrontL->ObjCBIndex = objCBIndex++;
-	coneFrontL->Mat = mMaterials["brick2"].get();
+	coneFrontL->Mat = mMaterials["wood"].get();
 	coneFrontL->Geo = mGeometries["shapeGeo"].get();
 	coneFrontL->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	coneFrontL->IndexCount = coneFrontL->Geo->DrawArgs["cone"].IndexCount;
@@ -1570,7 +1789,7 @@ void CastleApp::BuildTowers() {
 		* XMMatrixTranslation(59.0f, 52.0f, 59.0f));
 	XMStoreFloat4x4(&coneFrontR->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	coneFrontR->ObjCBIndex = objCBIndex++;
-	coneFrontR->Mat = mMaterials["brick2"].get();
+	coneFrontR->Mat = mMaterials["wood"].get();
 	coneFrontR->Geo = mGeometries["shapeGeo"].get();
 	coneFrontR->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	coneFrontR->IndexCount = coneFrontR->Geo->DrawArgs["cone"].IndexCount;
@@ -1598,7 +1817,7 @@ void CastleApp::BuildTowers() {
 		* XMMatrixTranslation(-59.0f, 52.0f, 59.0f));
 	XMStoreFloat4x4(&coneBackR->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	coneBackR->ObjCBIndex = objCBIndex++;
-	coneBackR->Mat = mMaterials["brick2"].get();
+	coneBackR->Mat = mMaterials["wood"].get();
 	coneBackR->Geo = mGeometries["shapeGeo"].get();
 	coneBackR->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	coneBackR->IndexCount = coneBackR->Geo->DrawArgs["cone"].IndexCount;
@@ -1626,7 +1845,7 @@ void CastleApp::BuildTowers() {
 		* XMMatrixTranslation(-59.0f, 52.0f, -59.0f));
 	XMStoreFloat4x4(&coneBackL->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	coneBackL->ObjCBIndex = objCBIndex++;
-	coneBackL->Mat = mMaterials["brick2"].get();
+	coneBackL->Mat = mMaterials["wood"].get();
 	coneBackL->Geo = mGeometries["shapeGeo"].get();
 	coneBackL->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	coneBackL->IndexCount = coneBackL->Geo->DrawArgs["cone"].IndexCount;
@@ -1668,7 +1887,7 @@ void CastleApp::BuildRailAndSpikes(float posX, float posY, float posZ, int dirX,
 		* XMMatrixTranslation(posX, posY, posZ));
 	XMStoreFloat4x4(&railFrontO->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	railFrontO->ObjCBIndex = objCBIndex++;
-	railFrontO->Mat = mMaterials["brick2"].get();
+	railFrontO->Mat = mMaterials["wood"].get();
 	railFrontO->Geo = mGeometries["shapeGeo"].get();
 	railFrontO->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	railFrontO->IndexCount = railFrontO->Geo->DrawArgs["box"].IndexCount;
@@ -1684,7 +1903,7 @@ void CastleApp::BuildRailAndSpikes(float posX, float posY, float posZ, int dirX,
 				* XMMatrixTranslation(posX + i*10.0f*dirX, posY + 1.0f, posZ + i*10.0f*dirZ));
 			XMStoreFloat4x4(&block->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 			block->ObjCBIndex = objCBIndex++;
-			block->Mat = mMaterials["brick2"].get();
+			block->Mat = mMaterials["stone"].get();
 			block->Geo = mGeometries["shapeGeo"].get();
 			block->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			block->IndexCount = block->Geo->DrawArgs["box"].IndexCount;
@@ -1698,7 +1917,7 @@ void CastleApp::BuildRailAndSpikes(float posX, float posY, float posZ, int dirX,
 				* XMMatrixTranslation(posX + i*10.0f*dirX, posY + 3.0f, posZ + i*10.0f*dirZ));
 			XMStoreFloat4x4(&pyramid->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 			pyramid->ObjCBIndex = objCBIndex++;
-			pyramid->Mat = mMaterials["brick2"].get();
+			pyramid->Mat = mMaterials["stone"].get();
 			pyramid->Geo = mGeometries["shapeGeo"].get();
 			pyramid->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			pyramid->IndexCount = pyramid->Geo->DrawArgs["pyramid"].IndexCount;
@@ -1713,7 +1932,7 @@ void CastleApp::BuildRailAndSpikes(float posX, float posY, float posZ, int dirX,
 				* XMMatrixTranslation(posX + i*10.0f*dirX, posY + 1.0f, posZ + i*10.0f*dirZ));
 			XMStoreFloat4x4(&block->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 			block->ObjCBIndex = objCBIndex++;
-			block->Mat = mMaterials["brick2"].get();
+			block->Mat = mMaterials["stone"].get();
 			block->Geo = mGeometries["shapeGeo"].get();
 			block->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			block->IndexCount = block->Geo->DrawArgs["box"].IndexCount;
@@ -1727,7 +1946,7 @@ void CastleApp::BuildRailAndSpikes(float posX, float posY, float posZ, int dirX,
 				* XMMatrixTranslation(posX + i*10.0f*dirX, posY + 3.0f, posZ + i*10.0f*dirZ));
 			XMStoreFloat4x4(&pyramid->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 			pyramid->ObjCBIndex = objCBIndex++;
-			pyramid->Mat = mMaterials["brick2"].get();
+			pyramid->Mat = mMaterials["stone"].get();
 			pyramid->Geo = mGeometries["shapeGeo"].get();
 			pyramid->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			pyramid->IndexCount = pyramid->Geo->DrawArgs["pyramid"].IndexCount;
@@ -1741,7 +1960,7 @@ void CastleApp::BuildRailAndSpikes(float posX, float posY, float posZ, int dirX,
 				* XMMatrixTranslation(posX - i*10.0f*dirX, posY + 1.0f, posZ - i*10.0f*dirZ));
 			XMStoreFloat4x4(&block2->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 			block2->ObjCBIndex = objCBIndex++;
-			block2->Mat = mMaterials["brick2"].get();
+			block2->Mat = mMaterials["stone"].get();
 			block2->Geo = mGeometries["shapeGeo"].get();
 			block2->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			block2->IndexCount = block2->Geo->DrawArgs["box"].IndexCount;
@@ -1755,7 +1974,7 @@ void CastleApp::BuildRailAndSpikes(float posX, float posY, float posZ, int dirX,
 				* XMMatrixTranslation(posX - i*10.0f*dirX, posY + 3.0f, posZ - i*10.0f*dirZ));
 			XMStoreFloat4x4(&pyramid2->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 			pyramid2->ObjCBIndex = objCBIndex++;
-			pyramid2->Mat = mMaterials["brick2"].get();
+			pyramid2->Mat = mMaterials["stone"].get();
 			pyramid2->Geo = mGeometries["shapeGeo"].get();
 			pyramid2->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			pyramid2->IndexCount = pyramid2->Geo->DrawArgs["pyramid"].IndexCount;
@@ -1769,13 +1988,14 @@ void CastleApp::BuildRailAndSpikes(float posX, float posY, float posZ, int dirX,
 
 void CastleApp::BuildInner() {
 
+	//path
 	auto floor = std::make_unique<RenderItem>();
 	floor->World = MathHelper::Identity4x4();
-	XMStoreFloat4x4(&floor->World, XMMatrixScaling(140.0f, 1.0, 30.0f)
-		* XMMatrixTranslation(0.0f, 0.1f, 0.0f));
+	XMStoreFloat4x4(&floor->World, XMMatrixScaling(230.0f, 1.0, 30.0f)
+		* XMMatrixTranslation(60.0f, 0.1f, 0.0f));
 	XMStoreFloat4x4(&floor->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	floor->ObjCBIndex = objCBIndex++;
-	floor->Mat = mMaterials["brick2"].get();
+	floor->Mat = mMaterials["tile"].get();
 	floor->Geo = mGeometries["shapeGeo"].get();
 	floor->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	floor->IndexCount = floor->Geo->DrawArgs["grid"].IndexCount;
@@ -1792,7 +2012,7 @@ void CastleApp::BuildInner() {
 			* XMMatrixTranslation(-30.0f + 30.0f*i, 7.5f, -15.0f));
 		XMStoreFloat4x4(&cylinder->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 		cylinder->ObjCBIndex = objCBIndex++;
-		cylinder->Mat = mMaterials["brick2"].get();
+		cylinder->Mat = mMaterials["metal"].get();
 		cylinder->Geo = mGeometries["shapeGeo"].get();
 		cylinder->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		cylinder->IndexCount = cylinder->Geo->DrawArgs["cylinder"].IndexCount;
@@ -1806,7 +2026,7 @@ void CastleApp::BuildInner() {
 			* XMMatrixTranslation(-30.0f + 30.0f*i, 16.5f, -15.0f));
 		XMStoreFloat4x4(&sphere->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 		sphere->ObjCBIndex = objCBIndex++;
-		sphere->Mat = mMaterials["brick2"].get();
+		sphere->Mat = mMaterials["glass"].get();
 		sphere->Geo = mGeometries["shapeGeo"].get();
 		sphere->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		sphere->IndexCount = sphere->Geo->DrawArgs["sphere"].IndexCount;
@@ -1821,7 +2041,7 @@ void CastleApp::BuildInner() {
 			* XMMatrixTranslation(-30.0f + 30.0f*i, 7.5f, 15.0f));
 		XMStoreFloat4x4(&cylinder->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 		cylinder->ObjCBIndex = objCBIndex++;
-		cylinder->Mat = mMaterials["brick2"].get();
+		cylinder->Mat = mMaterials["metal"].get();
 		cylinder->Geo = mGeometries["shapeGeo"].get();
 		cylinder->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		cylinder->IndexCount = cylinder->Geo->DrawArgs["cylinder"].IndexCount;
@@ -1835,7 +2055,7 @@ void CastleApp::BuildInner() {
 			* XMMatrixTranslation(-30.0f + 30.0f*i, 16.5f, 15.0f));
 		XMStoreFloat4x4(&sphere->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 		sphere->ObjCBIndex = objCBIndex++;
-		sphere->Mat = mMaterials["brick2"].get();
+		sphere->Mat = mMaterials["glass"].get();
 		sphere->Geo = mGeometries["shapeGeo"].get();
 		sphere->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		sphere->IndexCount = sphere->Geo->DrawArgs["sphere"].IndexCount;
@@ -1851,7 +2071,7 @@ void CastleApp::BuildInner() {
 	XMStoreFloat4x4(&altarLower->World, XMMatrixScaling(15.0f, 1.0f, 15.0f) * XMMatrixTranslation(-35.0f, 0.6f, 0.0f));
 	XMStoreFloat4x4(&altarLower->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	altarLower->ObjCBIndex = objCBIndex++;
-	altarLower->Mat = mMaterials["brick2"].get();
+	altarLower->Mat = mMaterials["stone"].get();
 	altarLower->Geo = mGeometries["shapeGeo"].get();
 	altarLower->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	altarLower->IndexCount = altarLower->Geo->DrawArgs["box"].IndexCount;
@@ -1865,7 +2085,7 @@ void CastleApp::BuildInner() {
 	XMStoreFloat4x4(&altarUpper->World, XMMatrixScaling(11.0f, 1.0f, 11.0f) * XMMatrixTranslation(-35.0f, 1.6f, 0.0f));
 	XMStoreFloat4x4(&altarUpper->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	altarUpper->ObjCBIndex = objCBIndex++;
-	altarUpper->Mat = mMaterials["brick2"].get();
+	altarUpper->Mat = mMaterials["stone"].get();
 	altarUpper->Geo = mGeometries["shapeGeo"].get();
 	altarUpper->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	altarUpper->IndexCount = altarUpper->Geo->DrawArgs["box"].IndexCount;
@@ -1878,7 +2098,7 @@ void CastleApp::BuildInner() {
 	XMStoreFloat4x4(&torus->World, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(-35.0f, 3.8f, 0.0f));
 	XMStoreFloat4x4(&torus->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 	torus->ObjCBIndex = objCBIndex++;
-	torus->Mat = mMaterials["brick2"].get();
+	torus->Mat = mMaterials["ice"].get();
 	torus->Geo = mGeometries["shapeGeo"].get();
 	torus->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	torus->IndexCount = torus->Geo->DrawArgs["torus"].IndexCount;
@@ -1886,4 +2106,263 @@ void CastleApp::BuildInner() {
 	torus->BaseVertexLocation = torus->Geo->DrawArgs["torus"].BaseVertexLocation;
 	mRitemLayer[(int)RenderLayer::Opaque].push_back(torus.get());
 	mAllRitems.push_back(std::move(torus));
+}
+
+void CastleApp::BuildMaze() {
+	
+
+	auto floor = std::make_unique<RenderItem>();
+	floor->World = MathHelper::Identity4x4();
+	XMStoreFloat4x4(&floor->World, XMMatrixScaling(115.0f, 1.0f, 138.0f)
+		* XMMatrixTranslation(232.0f, 0.1f, 0.0f));
+	XMStoreFloat4x4(&floor->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	floor->ObjCBIndex = objCBIndex++;
+	floor->Mat = mMaterials["tile"].get();
+	floor->Geo = mGeometries["shapeGeo"].get();
+	floor->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	floor->IndexCount = floor->Geo->DrawArgs["grid"].IndexCount;
+	floor->StartIndexLocation = floor->Geo->DrawArgs["grid"].StartIndexLocation;
+	floor->BaseVertexLocation = floor->Geo->DrawArgs["grid"].BaseVertexLocation;
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(floor.get());
+	mAllRitems.push_back(std::move(floor));
+
+
+
+	//maze walls
+	auto wallLeft = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&wallLeft->World, XMMatrixScaling(1.5f, 25.0f, 78.0f)
+		* XMMatrixRotationY(XMConvertToRadians(90))
+		* XMMatrixTranslation(232.0f, 12.5f, -69.2f));
+	XMStoreFloat4x4(&wallLeft->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	wallLeft->ObjCBIndex = objCBIndex++;
+	wallLeft->Mat = mMaterials["brick2"].get();
+	wallLeft->Geo = mGeometries["shapeGeo"].get();
+	wallLeft->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	wallLeft->IndexCount = wallLeft->Geo->DrawArgs["box"].IndexCount;
+	wallLeft->StartIndexLocation = wallLeft->Geo->DrawArgs["box"].StartIndexLocation;
+	wallLeft->BaseVertexLocation = wallLeft->Geo->DrawArgs["box"].BaseVertexLocation;
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(wallLeft.get());
+	mAllRitems.push_back(std::move(wallLeft));
+
+	auto wallRight = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&wallRight->World, XMMatrixScaling(1.5f, 25.0f, 78.0f)
+		* XMMatrixRotationY(XMConvertToRadians(90))
+		* XMMatrixTranslation(232.0f, 12.5f, 69.2f));
+	XMStoreFloat4x4(&wallRight->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	wallRight->ObjCBIndex = objCBIndex++;
+	wallRight->Mat = mMaterials["brick2"].get();
+	wallRight->Geo = mGeometries["shapeGeo"].get();
+	wallRight->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	wallRight->IndexCount = wallRight->Geo->DrawArgs["box"].IndexCount;
+	wallRight->StartIndexLocation = wallRight->Geo->DrawArgs["box"].StartIndexLocation;
+	wallRight->BaseVertexLocation = wallRight->Geo->DrawArgs["box"].BaseVertexLocation;
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(wallRight.get());
+	mAllRitems.push_back(std::move(wallRight));
+
+	//ratio  54 (unity) -> 37 (code) = 0.68518
+	auto wallBackL = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&wallBackL->World, XMMatrixScaling(1.5f, 25.0f, 37.0f)
+		* XMMatrixTranslation(174.75f, 12.5f, -42.0f));
+	XMStoreFloat4x4(&wallBackL->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	wallBackL->ObjCBIndex = objCBIndex++;
+	wallBackL->Mat = mMaterials["brick2"].get();
+	wallBackL->Geo = mGeometries["shapeGeo"].get();
+	wallBackL->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	wallBackL->IndexCount = wallBackL->Geo->DrawArgs["box"].IndexCount;
+	wallBackL->StartIndexLocation = wallBackL->Geo->DrawArgs["box"].StartIndexLocation;
+	wallBackL->BaseVertexLocation = wallBackL->Geo->DrawArgs["box"].BaseVertexLocation;
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(wallBackL.get());
+	mAllRitems.push_back(std::move(wallBackL));
+
+	auto wallBackR = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&wallBackR->World, XMMatrixScaling(1.5f, 25.0f, 37.0f)
+		* XMMatrixTranslation(174.75f, 12.5f, 42.0f));
+	XMStoreFloat4x4(&wallBackR->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	wallBackR->ObjCBIndex = objCBIndex++;
+	wallBackR->Mat = mMaterials["brick2"].get();
+	wallBackR->Geo = mGeometries["shapeGeo"].get();
+	wallBackR->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	wallBackR->IndexCount = wallBackR->Geo->DrawArgs["box"].IndexCount;
+	wallBackR->StartIndexLocation = wallBackR->Geo->DrawArgs["box"].StartIndexLocation;
+	wallBackR->BaseVertexLocation = wallBackR->Geo->DrawArgs["box"].BaseVertexLocation;
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(wallBackR.get());
+	mAllRitems.push_back(std::move(wallBackR));
+	
+	auto wallFrontL = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&wallFrontL->World, XMMatrixScaling(1.5f, 25.0f, 37.0f)
+		* XMMatrixTranslation(289.5f, 12.5f, -42.0f));
+	XMStoreFloat4x4(&wallFrontL->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	wallFrontL->ObjCBIndex = objCBIndex++;
+	wallFrontL->Mat = mMaterials["brick2"].get();
+	wallFrontL->Geo = mGeometries["shapeGeo"].get();
+	wallFrontL->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	wallFrontL->IndexCount = wallFrontL->Geo->DrawArgs["box"].IndexCount;
+	wallFrontL->StartIndexLocation = wallFrontL->Geo->DrawArgs["box"].StartIndexLocation;
+	wallFrontL->BaseVertexLocation = wallFrontL->Geo->DrawArgs["box"].BaseVertexLocation;
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(wallFrontL.get());
+	mAllRitems.push_back(std::move(wallFrontL));
+
+	auto wallFrontR = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&wallFrontR->World, XMMatrixScaling(1.5f, 25.0f, 37.0f)
+		* XMMatrixTranslation(289.5f, 12.5f, 42.0f));
+	XMStoreFloat4x4(&wallFrontR->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	wallFrontR->ObjCBIndex = objCBIndex++;
+	wallFrontR->Mat = mMaterials["brick2"].get();
+	wallFrontR->Geo = mGeometries["shapeGeo"].get();
+	wallFrontR->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	wallFrontR->IndexCount = wallFrontR->Geo->DrawArgs["box"].IndexCount;
+	wallFrontR->StartIndexLocation = wallFrontR->Geo->DrawArgs["box"].StartIndexLocation;
+	wallFrontR->BaseVertexLocation = wallFrontR->Geo->DrawArgs["box"].BaseVertexLocation;
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(wallFrontR.get());
+	mAllRitems.push_back(std::move(wallFrontR));
+
+
+	//inner maze, left/right orientation
+	//scale value in Unity / 116 * 78
+	auto wallL1 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&wallL1->World, XMMatrixScaling(1.5f, 25.0f, 30.95f)
+		* XMMatrixRotationY(XMConvertToRadians(90))
+		* XMMatrixTranslation(197.87f, 12.5f, -15.77f));
+	XMStoreFloat4x4(&wallL1->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	wallL1->ObjCBIndex = objCBIndex++;
+	wallL1->Mat = mMaterials["brick2"].get();
+	wallL1->Geo = mGeometries["shapeGeo"].get();
+	wallL1->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	wallL1->IndexCount = wallL1->Geo->DrawArgs["box"].IndexCount;
+	wallL1->StartIndexLocation = wallL1->Geo->DrawArgs["box"].StartIndexLocation;
+	wallL1->BaseVertexLocation = wallL1->Geo->DrawArgs["box"].BaseVertexLocation;
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(wallL1.get());
+	mAllRitems.push_back(std::move(wallL1));
+
+	auto wallL2 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&wallL2->World, XMMatrixScaling(1.5f, 25.0f, 17.48f)
+		* XMMatrixRotationY(XMConvertToRadians(90))
+		* XMMatrixTranslation(207.9f, 12.5f, -43.46f));
+	XMStoreFloat4x4(&wallL2->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	wallL2->ObjCBIndex = objCBIndex++;
+	wallL2->Mat = mMaterials["brick2"].get();
+	wallL2->Geo = mGeometries["shapeGeo"].get();
+	wallL2->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	wallL2->IndexCount = wallL2->Geo->DrawArgs["box"].IndexCount;
+	wallL2->StartIndexLocation = wallL2->Geo->DrawArgs["box"].StartIndexLocation;
+	wallL2->BaseVertexLocation = wallL2->Geo->DrawArgs["box"].BaseVertexLocation;
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(wallL2.get());
+	mAllRitems.push_back(std::move(wallL2));
+
+	auto wallL3 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&wallL3->World, XMMatrixScaling(1.5f, 25.0f, 21.52f)
+		* XMMatrixRotationY(XMConvertToRadians(90))
+		* XMMatrixTranslation(255.25f, 12.5f, -41.98f));
+	XMStoreFloat4x4(&wallL3->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	wallL3->ObjCBIndex = objCBIndex++;
+	wallL3->Mat = mMaterials["brick2"].get();
+	wallL3->Geo = mGeometries["shapeGeo"].get();
+	wallL3->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	wallL3->IndexCount = wallL3->Geo->DrawArgs["box"].IndexCount;
+	wallL3->StartIndexLocation = wallL3->Geo->DrawArgs["box"].StartIndexLocation;
+	wallL3->BaseVertexLocation = wallL3->Geo->DrawArgs["box"].BaseVertexLocation;
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(wallL3.get());
+	mAllRitems.push_back(std::move(wallL3));
+
+	auto wallL4 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&wallL4->World, XMMatrixScaling(1.5f, 25.0f, 33.62f)
+		* XMMatrixRotationY(XMConvertToRadians(90))
+		* XMMatrixTranslation(264.2f, 12.5f, 15.92f));
+	XMStoreFloat4x4(&wallL4->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	wallL4->ObjCBIndex = objCBIndex++;
+	wallL4->Mat = mMaterials["brick2"].get();
+	wallL4->Geo = mGeometries["shapeGeo"].get();
+	wallL4->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	wallL4->IndexCount = wallL4->Geo->DrawArgs["box"].IndexCount;
+	wallL4->StartIndexLocation = wallL4->Geo->DrawArgs["box"].StartIndexLocation;
+	wallL4->BaseVertexLocation = wallL4->Geo->DrawArgs["box"].BaseVertexLocation;
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(wallL4.get());
+	mAllRitems.push_back(std::move(wallL4));
+
+	auto wallL5 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&wallL5->World, XMMatrixScaling(1.5f, 25.0f, 47.07f)
+		* XMMatrixRotationY(XMConvertToRadians(90))
+		* XMMatrixTranslation(235.79f, 12.5f,  37.07f));
+	XMStoreFloat4x4(&wallL5->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	wallL5->ObjCBIndex = objCBIndex++;
+	wallL5->Mat = mMaterials["brick2"].get();
+	wallL5->Geo = mGeometries["shapeGeo"].get();
+	wallL5->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	wallL5->IndexCount = wallL5->Geo->DrawArgs["box"].IndexCount;
+	wallL5->StartIndexLocation = wallL5->Geo->DrawArgs["box"].StartIndexLocation;
+	wallL5->BaseVertexLocation = wallL5->Geo->DrawArgs["box"].BaseVertexLocation;
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(wallL5.get());
+	mAllRitems.push_back(std::move(wallL5));
+
+	auto wallF1 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&wallF1->World, XMMatrixScaling(1.5f, 25.0f, 21.52f)
+		* XMMatrixTranslation(270.5f, 12.5f, -26.68f));
+	XMStoreFloat4x4(&wallF1->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	wallF1->ObjCBIndex = objCBIndex++;
+	wallF1->Mat = mMaterials["brick2"].get();
+	wallF1->Geo = mGeometries["shapeGeo"].get();
+	wallF1->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	wallF1->IndexCount = wallF1->Geo->DrawArgs["box"].IndexCount;
+	wallF1->StartIndexLocation = wallF1->Geo->DrawArgs["box"].StartIndexLocation;
+	wallF1->BaseVertexLocation = wallF1->Geo->DrawArgs["box"].BaseVertexLocation;
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(wallF1.get());
+	mAllRitems.push_back(std::move(wallF1));
+
+	auto wallF2 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&wallF2->World, XMMatrixScaling(1.5f, 25.0f, 39.01f)
+		* XMMatrixTranslation(240.0f, 12.5f, -12.98f));
+	XMStoreFloat4x4(&wallF2->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	wallF2->ObjCBIndex = objCBIndex++;
+	wallF2->Mat = mMaterials["brick2"].get();
+	wallF2->Geo = mGeometries["shapeGeo"].get();
+	wallF2->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	wallF2->IndexCount = wallF2->Geo->DrawArgs["box"].IndexCount;
+	wallF2->StartIndexLocation = wallF2->Geo->DrawArgs["box"].StartIndexLocation;
+	wallF2->BaseVertexLocation = wallF2->Geo->DrawArgs["box"].BaseVertexLocation;
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(wallF2.get());
+	mAllRitems.push_back(std::move(wallF2));
+
+	auto wallF3 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&wallF3->World, XMMatrixScaling(1.5f, 25.0f, 22.19f)
+		* XMMatrixTranslation(220.15f, 12.5f, 0.4f));
+	XMStoreFloat4x4(&wallF3->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	wallF3->ObjCBIndex = objCBIndex++;
+	wallF3->Mat = mMaterials["brick2"].get();
+	wallF3->Geo = mGeometries["shapeGeo"].get();
+	wallF3->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	wallF3->IndexCount = wallF3->Geo->DrawArgs["box"].IndexCount;
+	wallF3->StartIndexLocation = wallF3->Geo->DrawArgs["box"].StartIndexLocation;
+	wallF3->BaseVertexLocation = wallF3->Geo->DrawArgs["box"].BaseVertexLocation;
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(wallF3.get());
+	mAllRitems.push_back(std::move(wallF3));
+
+	auto wallF4 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&wallF4->World, XMMatrixScaling(1.5f, 25.0f, 36.31f)
+		* XMMatrixTranslation(201.0f, 12.5f, 10.87f));
+	XMStoreFloat4x4(&wallF4->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	wallF4->ObjCBIndex = objCBIndex++;
+	wallF4->Mat = mMaterials["brick2"].get();
+	wallF4->Geo = mGeometries["shapeGeo"].get();
+	wallF4->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	wallF4->IndexCount = wallF4->Geo->DrawArgs["box"].IndexCount;
+	wallF4->StartIndexLocation = wallF4->Geo->DrawArgs["box"].StartIndexLocation;
+	wallF4->BaseVertexLocation = wallF4->Geo->DrawArgs["box"].BaseVertexLocation;
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(wallF4.get());
+	mAllRitems.push_back(std::move(wallF4));
+
+	auto wallF5 = std::make_unique<RenderItem>();
+	XMStoreFloat4x4(&wallF5->World, XMMatrixScaling(1.5f, 25.0f, 19.5f)
+		* XMMatrixTranslation(195.66, 12.5f, -29.55));
+	XMStoreFloat4x4(&wallF5->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+	wallF5->ObjCBIndex = objCBIndex++;
+	wallF5->Mat = mMaterials["brick2"].get();
+	wallF5->Geo = mGeometries["shapeGeo"].get();
+	wallF5->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	wallF5->IndexCount = wallF5->Geo->DrawArgs["box"].IndexCount;
+	wallF5->StartIndexLocation = wallF5->Geo->DrawArgs["box"].StartIndexLocation;
+	wallF5->BaseVertexLocation = wallF5->Geo->DrawArgs["box"].BaseVertexLocation;
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(wallF5.get());
+	mAllRitems.push_back(std::move(wallF5));
+
+
 }
