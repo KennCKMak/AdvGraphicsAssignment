@@ -30,6 +30,14 @@ public:
         return a + rand() % ((b - a) + 1);
     }
 
+	static int RandSign() {
+		float f = RandF();
+		if (f < 0.50f)
+			return -1;
+		else
+			return 1;
+	}
+
 	template<typename T>
 	static T Min(const T& a, const T& b)
 	{
