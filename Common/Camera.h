@@ -64,7 +64,8 @@ public:
 	// Strafe/Walk the camera a distance d.
 	void Strafe(float d);
 	void Walk(float d);
-
+	void Rise(float d);
+	void Lower(float d);
 	// Rotate the camera.
 	void Pitch(float angle);
 	void RotateY(float angle);
@@ -79,7 +80,7 @@ private:
 	DirectX::XMFLOAT3 mRight = { 1.0f, 0.0f, 0.0f };
 	DirectX::XMFLOAT3 mUp = { 0.0f, 1.0f, 0.0f };
 	DirectX::XMFLOAT3 mLook = { 0.0f, 0.0f, 1.0f };
-
+	DirectX::XMFLOAT3 mDown = { 0.0f, -1.0f, 0.0f };
 	// Cache frustum properties.
 	float mNearZ = 0.0f;
 	float mFarZ = 0.0f;

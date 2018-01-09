@@ -126,6 +126,7 @@ public:
 		const D3D_SHADER_MACRO* defines,
 		const std::string& entrypoint,
 		const std::string& target);
+
 };
 
 class DxException
@@ -222,6 +223,8 @@ struct Light
     float SpotPower = 64.0f;                            // spot light only
 };
 
+
+
 #define MaxLights 16
 
 struct MaterialConstants
@@ -273,6 +276,7 @@ struct Texture
 	Microsoft::WRL::ComPtr<ID3D12Resource> Resource = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> UploadHeap = nullptr;
 };
+
 
 #ifndef ThrowIfFailed
 #define ThrowIfFailed(x)                                              \
