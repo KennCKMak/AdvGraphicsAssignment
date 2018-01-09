@@ -200,7 +200,7 @@ void Camera::Walk(float d)
 
 void Camera::Rise(float d)
 {
-	// mPosition += d*mLook
+	//for going vertically up
 	XMVECTOR s = XMVectorReplicate(d);
 	XMVECTOR l = XMLoadFloat3(&mUp);
 	XMVECTOR p = XMLoadFloat3(&mPosition);
@@ -211,7 +211,7 @@ void Camera::Rise(float d)
 
 void Camera::Lower(float d)
 {
-	// mPosition += d*mLook
+	//for going vertically down
 	XMVECTOR s = XMVectorReplicate(d);
 	XMVECTOR l = XMLoadFloat3(&mDown);
 	XMVECTOR p = XMLoadFloat3(&mPosition);

@@ -536,32 +536,40 @@ void CastleApp::UpdateMainPassCB(const GameTimer& gt)
 	mMainPassCB.TotalTime = gt.TotalTime();
 	mMainPassCB.DeltaTime = gt.DeltaTime();
 	mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
+	//Directional light
 	mMainPassCB.Lights[0].Direction = { 0.57735f, -0.57735f, 0.57735f };
 	mMainPassCB.Lights[0].Strength = { 0.6f, 0.6f, 0.6f };
+	//Point light 1
 	mMainPassCB.Lights[1].Strength = { 10.f, 10.0f, 4.0f };
 	mMainPassCB.Lights[1].FalloffStart = 0.0f;
 	mMainPassCB.Lights[1].FalloffEnd = 25.0f;
 	mMainPassCB.Lights[1].Position = { 0.0f, 19.0f, -15.0f };
+	//Point light 2
 	mMainPassCB.Lights[2].Strength = { 10.f, 10.0f, 4.0f };
 	mMainPassCB.Lights[2].FalloffStart = 0.0f;
 	mMainPassCB.Lights[2].FalloffEnd = 25.0f;
 	mMainPassCB.Lights[2].Position = { 0.0f, 19.0f, 15.0f };
+	//Point light 3
 	mMainPassCB.Lights[3].Strength = { 10.f, 10.0f, 4.0f };
 	mMainPassCB.Lights[3].FalloffStart = 0.0f;
 	mMainPassCB.Lights[3].FalloffEnd = 25.0f;
 	mMainPassCB.Lights[3].Position = { 30.0f, 19.0f, -15.0f };
+	//Point light 4
 	mMainPassCB.Lights[4].Strength = { 10.f, 10.0f, 4.0f };
 	mMainPassCB.Lights[4].FalloffStart = 0.0f;
 	mMainPassCB.Lights[4].FalloffEnd = 22.0f;
 	mMainPassCB.Lights[4].Position = { -30.0f, 19.0f, -15.0f };
+	//Point light 5
 	mMainPassCB.Lights[5].Strength = { 10.f, 10.0f, 4.0f };
 	mMainPassCB.Lights[5].FalloffStart = 0.0f;
 	mMainPassCB.Lights[5].FalloffEnd = 25.0f;
 	mMainPassCB.Lights[5].Position = { 30.0f, 19.0f, 15.0f };
+	//Point light 6
 	mMainPassCB.Lights[6].Strength = { 10.f, 10.0f, 4.0f };
 	mMainPassCB.Lights[6].FalloffStart = 0.0f;
 	mMainPassCB.Lights[6].FalloffEnd = 22.0f;
 	mMainPassCB.Lights[6].Position = { -30.0f, 19.0f, 15.0f };
+	//Spot light
 	mMainPassCB.Lights[7].Strength = { 10.f, 0.0f, 0.0f };
 	mMainPassCB.Lights[7].Position = { -36.0f, 15.0f, 0.0f };
 	mMainPassCB.Lights[7].SpotPower = 5.0f;

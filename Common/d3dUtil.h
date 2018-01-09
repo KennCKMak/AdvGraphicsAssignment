@@ -223,18 +223,6 @@ struct Light
     float SpotPower = 64.0f;                            // spot light only
 };
 
-struct PointLight
-{
-	DirectX::XMFLOAT4 Ambient = { 0.5f, 0.5f, 0.5f, 0.5f };
-	DirectX::XMFLOAT4 Diffuse = { 0.5f, 0.5f, 0.5f, 0.5f };
-	DirectX::XMFLOAT4 Specular = { 0.5f, 0.5f, 0.5f, 0.5f };
-
-	DirectX::XMFLOAT3 Position;
-	float Range;
-
-	DirectX::XMFLOAT3 Att{ 0.5f, 0.5f, 0.5f };
-	float pad = 2.0f;
-};
 
 
 #define MaxLights 16
