@@ -126,6 +126,7 @@ public:
 		const D3D_SHADER_MACRO* defines,
 		const std::string& entrypoint,
 		const std::string& target);
+
 };
 
 class DxException
@@ -222,6 +223,20 @@ struct Light
     float SpotPower = 64.0f;                            // spot light only
 };
 
+struct PointLight
+{
+	DirectX::XMFLOAT4 Ambient = { 0.5f, 0.5f, 0.5f, 0.5f };
+	DirectX::XMFLOAT4 Diffuse = { 0.5f, 0.5f, 0.5f, 0.5f };
+	DirectX::XMFLOAT4 Specular = { 0.5f, 0.5f, 0.5f, 0.5f };
+
+	DirectX::XMFLOAT3 Position;
+	float Range;
+
+	DirectX::XMFLOAT3 Att{ 0.5f, 0.5f, 0.5f };
+	float pad = 2.0f;
+};
+
+
 #define MaxLights 16
 
 struct MaterialConstants
@@ -273,6 +288,7 @@ struct Texture
 	Microsoft::WRL::ComPtr<ID3D12Resource> Resource = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> UploadHeap = nullptr;
 };
+
 
 #ifndef ThrowIfFailed
 #define ThrowIfFailed(x)                                              \

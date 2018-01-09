@@ -5,6 +5,9 @@
 //***************************************************************************************
 
 #define MaxLights 16
+#define NUM_DIR_LIGHTS 1
+#define NUM_POINT_LIGHTS 6
+#define NUM_SPOT_LIGHTS 1
 
 struct Light
 {
@@ -14,6 +17,19 @@ struct Light
     float FalloffEnd;   // point/spot light only
     float3 Position;    // point light only
     float SpotPower;    // spot light only
+};
+
+struct PointLight
+{
+	float4 Ambient;
+	float4 Diffuse;
+	float4 Specular;
+
+	float3 Position;
+	float Range;
+
+	float3 Att;
+	float pad;
 };
 
 struct Material
