@@ -35,20 +35,20 @@ Camera:
 	3.	Spacebar to move camera up from its current direction
 	4.	Left-Shift to move camera downwards from its current direction
 	5.	Left-Click & Drag to change camera direction.
-See Part3____ images in Docs folder. 
+See Part3_Lights_FPS_Entrance, Part3_Lights_FPS_Goal, Part3_Lights_TopDown images in Docs folder. 
 
 Part 4: Trees
 - Total of 32 trees in the scene that is spawned outside the boundary of the castle and maze. 
-See Part4____ images in Docs folder.
+See Part4_Trees_Closeup, Part4_Trees_Everything images in Docs folder.
 
 Part 5: Water
 - Large water plane generated that is located below castle and maze. 
 - Animated textures with disturbances in the water.
-See Part5____ images in Docs folder.
+See Part5_Water_Everything images in Docs folder.
 
 Part 6: Maze
 - Basic maze placed at the entrance of the castle. 
 - Uses similar code from Assignment 1 to create and place its walls and uses the newly implemented textures. 
-See Part6____ images in Docs folder.
+See Part6_Maze_Everything, Part6_Maze_TopDown images in Docs folder.
 
 
