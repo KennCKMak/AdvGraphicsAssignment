@@ -165,6 +165,7 @@ private:
 
 	POINT mLastMousePos;
 
+	//new counter, incremented for each new primitive obj
 	UINT objCBIndex = 0;
 };
 
@@ -400,6 +401,7 @@ void CastleApp::OnKeyboardInput(const GameTimer& gt)
 {
 	const float dt = gt.DeltaTime();
 
+	//WASD for movement, Space/Shift for vert movement
 	if (GetAsyncKeyState('W') & 0x8000)
 		mCamera.Walk(40.0f*dt);
 
@@ -441,25 +443,26 @@ void CastleApp::UpdateCamera(const GameTimer& gt)
 void CastleApp::AnimateMaterials(const GameTimer& gt)
 {
 	// Scroll the water material texture coordinates.
-	//auto waterMat = mMaterials["water"].get();
+	auto waterMat = mMaterials["water"].get();
 
-	//float& tu = waterMat->MatTransform(3, 0);
-	//float& tv = waterMat->MatTransform(3, 1);
+	//tiling u & v
+	float& tu = waterMat->MatTransform(3, 0);
+	float& tv = waterMat->MatTransform(3, 1);
 
-	//tu += 0.1f * gt.DeltaTime();
-	//tv += 0.02f * gt.DeltaTime();
+	tu += 0.1f * gt.DeltaTime();
+	tv += 0.02f * gt.DeltaTime();
 
-	//if(tu >= 1.0f)
-	//	tu -= 1.0f;
+	if(tu >= 1.0f)
+		tu -= 1.0f;
 
-	//if(tv >= 1.0f)
-	//	tv -= 1.0f;
+	if(tv >= 1.0f)
+		tv -= 1.0f;
 
-	//waterMat->MatTransform(3, 0) = tu;
-	//waterMat->MatTransform(3, 1) = tv;
+	waterMat->MatTransform(3, 0) = tu;
+	waterMat->MatTransform(3, 1) = tv;
 
-	//// Material has changed, so need to update cbuffer.
-	//waterMat->NumFramesDirty = gNumFrameResources;
+	// Material has changed, so need to update cbuffer.
+	waterMat->NumFramesDirty = gNumFrameResources;
 }
 
 void CastleApp::UpdateObjectCBs(const GameTimer& gt)
@@ -592,7 +595,7 @@ void CastleApp::UpdateWaves(const GameTimer& gt)
 		int i = MathHelper::Rand(4, mWaves->RowCount() - 5);
 		int j = MathHelper::Rand(4, mWaves->ColumnCount() - 5);
 
-		float r = MathHelper::RandF(0.2f, 0.5f);
+		float r = MathHelper::RandF(0.1f, 0.25f);
 
 		mWaves->Disturb(i, j, r);
 	}
@@ -894,6 +897,7 @@ void CastleApp::BuildShadersAndInputLayouts()
 
 void CastleApp::BuildLandGeometry()
 {
+	//Generates vertices for our grid and allows for smooth heights with GetHillsHeight
 	GeometryGenerator geoGen;
 	GeometryGenerator::MeshData grid = geoGen.CreateGrid(100.0f, 100.0f, 50, 50);
 
@@ -1007,7 +1011,7 @@ void CastleApp::BuildWavesGeometry()
 void CastleApp::BuildShapeGeometry()
 {
 	GeometryGenerator geoGen;
-
+	//objects created and scaled according to Unity model Transform values
 	GeometryGenerator::MeshData box = geoGen.CreateBox(1.0f, 1.0f, 1.5f, 3);
 	GeometryGenerator::MeshData grid = geoGen.CreateGrid(1.0f, 1.0f, 60, 40);
 	GeometryGenerator::MeshData sphere = geoGen.CreateSphere(1.0f, 20, 20);
@@ -1185,6 +1189,7 @@ void CastleApp::BuildShapeGeometry()
 	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
 	geo->IndexBufferByteSize = ibByteSize;
 
+	//assigning call strings for our geometry
 	geo->DrawArgs["box"] = boxSubmesh;
 	geo->DrawArgs["grid"] = gridSubmesh;
 	geo->DrawArgs["sphere"] = sphereSubmesh;
@@ -1209,11 +1214,13 @@ void CastleApp::BuildTreeSpritesGeometry()
 
 	static const int treeCount = 32;
 	std::array<TreeSpriteVertex, treeCount> vertices;
-	//build an object outside x values -98 > x < 306. inbetween pt = 104, 202 diff
-	//outside z values -90.1 > z < 90.1
 
+	//build an object outside x values -98 > x < 306. midpt = 104, +-202.0f diff
+	//outside z values -90.1 > z < 90.1, midpt = 0. +-90.1f diff
+
+	//used to determine if we need to move tree outside of castle
 	bool inXRange;
-	bool inZRange;;
+	bool inZRange;
 
 	for (UINT i = 0; i < treeCount; ++i)
 	{
@@ -1222,62 +1229,46 @@ void CastleApp::BuildTreeSpritesGeometry()
 
 		//random number along boundaries
 		//makes sures the tree spawns OUTSIDE castle and maze grounds
-		//first step isi to generate random points.
-		float x = MathHelper::RandF(-98.0f - 45.0f, 306.0f + 45.0f);
-		float z = MathHelper::RandF(-90.1f - 45.0f, 90.1f + 45.0f);
 
+		//first step is to generate random points.
+		float x = MathHelper::RandF(-98.0f - 20.0f, 306.0f + 20.0f);
+		float z = MathHelper::RandF(-90.1f - 20.0f, 90.1f + 20.0f);
 
-		if (x > -90 && x < 306)
+		//Inside the castle - which axis?
+		if (x > -98.0f && x < 306.0f)
 			inXRange = true;
 		if (z > -90.1f && z < 90.1f)
 			inZRange = true;
 
-		float distToMove = 0.0f;
+		//if inside castle boundaries (X or Z axis), then move it to the edge and add arbitrary range (20.0f)
 		if (inXRange && !inZRange) {
-			if (x < 104.0f) {
-				distToMove = (-98.0f - x);
-			}
-			else {
-				distToMove = (404.0f - x);
-			}
-			x += distToMove;
-
-		}
-		else if (!inXRange && inZRange) {
-			if (z < 0.0f) {
-				distToMove = (-90.1f - z);
-			}
-			else {
-				distToMove = (90.1f - z);
-			}
-			z += distToMove;
-		}
-		else if (inXRange && inZRange) {
+			if (x < 104.0f)
+				x = -98.0f - MathHelper::RandF(0.0f, 20.0f);
+			else
+				x = 306.0f + MathHelper::RandF(0.0f, 20.0f);
+		} else if (!inXRange && inZRange) {
+			if (z < 0.0f)
+				z = -90.1f - MathHelper::RandF(0.0f, 20.0f);
+			else
+				z = 90.1f + MathHelper::RandF(0.0f, 20.0f);
+		} else if (inXRange && inZRange) {
+			//if in both boundaries of x & z...
 			//choose which side to push towards
+			//num = (-1) or (+1) - negative or positive integer
 			int num = MathHelper::RandSign();
 			if (num < 0) {
-				//flip x 
-				if (x < 104.0f) {
-					distToMove = (-98.0f - x);
-				}
-				else {
-					distToMove = (404.0f - x);
-				}
-				x += distToMove;
-
-
-			}
-			else {
-				//flip the z axis instead to push it out of castle
-				if (z < 0.0f) {
-					distToMove = (-90.1f - z);
-				}
-				else {
-					distToMove = (90.1f - z);
-				}
-				z += distToMove;
+				if (x < 104.0f)
+					x = -98.0f - MathHelper::RandF(0.0f, 20.0f);
+				else
+					x = 306.0f + MathHelper::RandF(0.0f, 20.0f);
+			} else {
+				if (z < 0.0f)
+					z = -90.1f - MathHelper::RandF(0.0f, 20.0f);
+				else
+					z = 90.1f + MathHelper::RandF(0.0f, 20.0f);
 			}
 		}
+
 
 		float y = GetHillsHeight(x, z);
 
@@ -1551,13 +1542,13 @@ void CastleApp::BuildRenderItems()
 	mRitemLayer[(int)RenderLayer::Opaque].push_back(gridRitem.get());
 	mAllRitems.push_back(std::move(gridRitem));
 
-
+	//Custom functions to make this area cleaner. Generates castle and maze
 	BuildWalls();
 	BuildTowers();
 	BuildRailings();
 	BuildInner();
-	BuildMaze();
 
+	BuildMaze();
 
 	BuildWaves();
 
@@ -1570,7 +1561,6 @@ void CastleApp::BuildRenderItems()
 	treeSpritesRitem->IndexCount = treeSpritesRitem->Geo->DrawArgs["points"].IndexCount;
 	treeSpritesRitem->StartIndexLocation = treeSpritesRitem->Geo->DrawArgs["points"].StartIndexLocation;
 	treeSpritesRitem->BaseVertexLocation = treeSpritesRitem->Geo->DrawArgs["points"].BaseVertexLocation;
-
 	mRitemLayer[(int)RenderLayer::AlphaTestedTreeSprites].push_back(treeSpritesRitem.get());
 	mAllRitems.push_back(std::move(treeSpritesRitem));
 }
@@ -1666,6 +1656,7 @@ std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> CastleApp::GetStaticSamplers()
 float CastleApp::GetHillsHeight(float x, float z)const
 {
 	//this function generates the terrain height...
+	//atm we want flat ground so we return 0
 	return 0;
 	//return 0.10f*(z*sinf(0.1f*x) + x*cosf(0.1f*z));
 
@@ -1674,6 +1665,7 @@ float CastleApp::GetHillsHeight(float x, float z)const
 XMFLOAT3 CastleApp::GetHillsNormal(float x, float z)const
 {
 	// n = (-df/dx, 1, -df/dz)
+	//atm we want ground to be 0, so we multiple the values by 0.000f...
 	XMFLOAT3 n(
 		-0.000f*z*cosf(0.1f*x) - 0.3f*cosf(0.1f*z),
 		1.0f,
@@ -1738,7 +1730,7 @@ void CastleApp::BuildWalls() {
 	mAllRitems.push_back(std::move(gateRight));
 
 
-	//walls
+	//walls, viewed from gate->back perspective
 	auto wallLeft = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&wallLeft->World, XMMatrixScaling(100.0f, 16.0f, 18.0f) * XMMatrixTranslation(0.0f, 8.0f, -59.0f));
 	XMStoreFloat4x4(&wallLeft->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
@@ -1827,8 +1819,7 @@ void CastleApp::BuildWalls() {
 }
 
 void CastleApp::BuildTowers() {
-	//scaling changed from 28, 33, 28 to 20, 33, 20 sinc ethey looked way too 'fat'
-
+	//viewed from front perspective
 	auto cylinderFrontL = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&cylinderFrontL->World, XMMatrixScaling(20.0, 33.0f, 20.0)
 		* XMMatrixTranslation(59.0f, 16.5f, -59.0f));
@@ -1968,6 +1959,12 @@ void CastleApp::BuildRailings() {
 }
 
 void CastleApp::BuildRailAndSpikes(float posX, float posY, float posZ, int dirX, int dirZ) {
+	//builds the parts that line the wall.
+	//posxyz is the midpoint of the rails, located on the wall
+	//dirX & dirZ is used to find out where we align it 
+	//i.e. if aligning along x axis, dirX = 1, dirZ = 0. multiplied into rotation
+
+	//the railing
 	auto railFrontO = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&railFrontO->World, XMMatrixScaling(100.0f, 2.0f, 1.0f)
 		* XMMatrixRotationY(XMConvertToRadians(90 * dirZ))
@@ -1983,8 +1980,11 @@ void CastleApp::BuildRailAndSpikes(float posX, float posY, float posZ, int dirX,
 	mRitemLayer[(int)RenderLayer::Opaque].push_back(railFrontO.get());
 	mAllRitems.push_back(std::move(railFrontO));
 
+	//loop: @i=0, build middle point. @i = 1, build 1st spike to left and right, and so on for a total of 9 spikes
+	//  4 3 2 1 0 1 2 3 4  placement
 	for (int i = 0; i < 5; i++) {
 		if (i == 0) {
+			//the middle 'point' of the railing
 			auto block = std::make_unique<RenderItem>();
 			XMStoreFloat4x4(&block->World, XMMatrixScaling(2.0f, 4.0f, 2.0f)
 				* XMMatrixTranslation(posX + i*10.0f*dirX, posY + 1.0f, posZ + i*10.0f*dirZ));
@@ -2014,6 +2014,7 @@ void CastleApp::BuildRailAndSpikes(float posX, float posY, float posZ, int dirX,
 			mAllRitems.push_back(std::move(pyramid));
 		}
 		else {
+			
 			auto block = std::make_unique<RenderItem>();
 			XMStoreFloat4x4(&block->World, XMMatrixScaling(2.0f, 4.0f, 2.0f)
 				* XMMatrixTranslation(posX + i*10.0f*dirX, posY + 1.0f, posZ + i*10.0f*dirZ));
@@ -2092,7 +2093,8 @@ void CastleApp::BuildInner() {
 	mAllRitems.push_back(std::move(floor));
 
 	//pillars
-	//xyz = 0, 0, -15, dX of 30
+	//xyz = 0, 0, -15, dX of 30. 
+	//x values of -30, 0, 30. z values = -15 or 15
 	for (int i = 0; i < 3; i++) {
 		auto cylinder = std::make_unique<RenderItem>();
 		XMStoreFloat4x4(&cylinder->World, XMMatrixScaling(1.0f, 15.0f, 1.0f)
@@ -2181,6 +2183,7 @@ void CastleApp::BuildInner() {
 	mRitemLayer[(int)RenderLayer::Opaque].push_back(altarUpper.get());
 	mAllRitems.push_back(std::move(altarUpper));
 
+	//the 'goal'
 	auto torus = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&torus->World, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(-35.0f, 3.8f, 0.0f));
 	XMStoreFloat4x4(&torus->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
@@ -2197,7 +2200,7 @@ void CastleApp::BuildInner() {
 
 void CastleApp::BuildMaze() {
 
-
+	//floor
 	auto floor = std::make_unique<RenderItem>();
 	floor->World = MathHelper::Identity4x4();
 	XMStoreFloat4x4(&floor->World, XMMatrixScaling(115.0f, 1.0f, 138.0f)
@@ -2215,7 +2218,7 @@ void CastleApp::BuildMaze() {
 
 
 
-	//maze walls
+	//outer maze walls
 	auto wallLeft = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&wallLeft->World, XMMatrixScaling(1.5f, 25.0f, 78.0f)
 		* XMMatrixRotationY(XMConvertToRadians(90))
@@ -2381,6 +2384,7 @@ void CastleApp::BuildMaze() {
 	mRitemLayer[(int)RenderLayer::Opaque].push_back(wallL5.get());
 	mAllRitems.push_back(std::move(wallL5));
 
+	//walls perpendicular to front view
 	auto wallF1 = std::make_unique<RenderItem>();
 	XMStoreFloat4x4(&wallF1->World, XMMatrixScaling(1.5f, 25.0f, 21.52f)
 		* XMMatrixTranslation(270.5f, 12.5f, -26.68f));
